@@ -1,6 +1,6 @@
 import * as THREE from 'three'
-// import * as OrbitControls from 'three-orbit-controls'
-import GLTFLoader from 'three-gltf-loader'
+import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader'
+// import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls'
 import Cube from '../assets/models/cube.glb'
 import Anime from 'animejs/lib/anime.es.js'
 
