@@ -2,18 +2,36 @@
 <html>
   <header>
     <meta charset="utf-8">
-    <title>Computer 3D thing</title>
+    <title>WebGL</title>
     <style>
       body {
         margin: 0;
+        color: #fff;
+        font-size: 20px;
+        font-family: monospace;
+        overflow: hidden;
       }
 
       canvas {
         display: block;
       }
+
+      #content {
+        position: absolute;
+        top: 50%;
+        left: 10%;
+      }
+
+      #hex {
+        display: inline-block;
+      }
     </style>
   </header>
   <body>
-    <div id="root"></div>
+    <div id="root">
+      <div id="content">
+        <div id="hex-container">Current Hex: #<div id="hex"></div></div>
+      </div>
+    </div>
   </body>
 </html>

@@ -5,15 +5,18 @@ import Stats from 'three/examples/jsm/libs/stats.module'
 import Cube from '../assets/models/cube.glb'
 import Anime from 'animejs/lib/anime.es.js'
 
-const HEIGHT = 700
-const WIDTH = 700
+const HEIGHT = window.innerHeight
+const WIDTH = window.innerWidth
 
 const raycaster = new THREE.Raycaster()
 const mouse = new THREE.Vector2()
 let INTERSECTED
 
+const root = document.getElementById('root')
+const hexElement = document.getElementById('hex')
+
 const stats = new Stats()
-document.body.appendChild(stats.dom)
+root.appendChild(stats.dom)
 
 function onMouseMove (event) {
   event.preventDefault()
@@ -26,7 +29,7 @@ const camera = new THREE.PerspectiveCamera(75, WIDTH / HEIGHT, 0.1, 1000)
 
 const renderer = new THREE.WebGLRenderer()
 renderer.setSize(WIDTH, HEIGHT)
-document.body.appendChild(renderer.domElement)
+root.appendChild(renderer.domElement)
 
 const controls = new OrbitControls(camera, renderer.domElement)
 
@@ -74,13 +77,16 @@ function render () {
       INTERSECTED = intersects[0].object
       INTERSECTED.currentHex = INTERSECTED.material.color.getHex()
       INTERSECTED.material.color.set(0xff0000)
+      hexElement.innerHTML = 0xff0000
     }
   } else {
     if (INTERSECTED) {
+      hexElement.innerHTML = INTERSECTED.currentHex
       INTERSECTED.material.color.set(INTERSECTED.currentHex)
     }
     INTERSECTED = null
   }
+
 
   renderer.render(scene, camera)
 }
