@@ -1,6 +1,7 @@
 import * as THREE from 'three'
 import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader'
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls'
+import Stats from 'three/examples/jsm/libs/stats.module'
 import Cube from '../assets/models/cube.glb'
 import Anime from 'animejs/lib/anime.es.js'
 
@@ -10,6 +11,9 @@ const WIDTH = 700
 const raycaster = new THREE.Raycaster()
 const mouse = new THREE.Vector2()
 let INTERSECTED
+
+const stats = new Stats()
+document.body.appendChild(stats.dom)
 
 function onMouseMove (event) {
   event.preventDefault()
@@ -53,6 +57,7 @@ function animate() {
   requestAnimationFrame(animate)
   controls.update()
   render()
+  stats.update()
 }
 
 function render () {
