@@ -94,3 +94,15 @@ const animate = () => {
 }
 
 animate()
+
+const toggleFanBtn = document.getElementById('toggle-fans')
+
+const toggleFans = () => {
+  if (fanBladesAnimation.paused) {
+    fanBladesAnimation.play()
+  } else {
+    fanBladesAnimation.pause()
+  }
+}
+
+toggleFanBtn.addEventListener('click', toggleFans)

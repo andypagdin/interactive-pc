@@ -15,9 +15,24 @@
       canvas {
         display: block;
       }
+
+      #controls {
+        width: 200px;
+        height: 50px;
+        padding: 10px;
+        background-color: #000;
+        position: absolute;
+        top: 0;
+        right: 0;
+        color: #fff;
+      }
     </style>
   </header>
   <body>
-    <div id="root"></div>
+    <div id="root">
+      <div id="controls">
+        <button id="toggle-fans">Fans</button>
+      </div>
+    </div>
   </body>
 </html>
