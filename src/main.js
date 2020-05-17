@@ -2,9 +2,14 @@ import * as THREE from 'three'
 import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader'
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls'
 import Case from '../assets/models/case.gltf'
+import Fan from '../assets/models/fan.gltf'
+import Anime from 'animejs'
 
 const root = document.getElementById('root')
 const scene = new THREE.Scene()
+
+// Animations
+let fanBladesAnimation
 
 // Renderer
 const renderer = new THREE.WebGLRenderer({ antialias: true, logarithmicDepthBuffer: true })
@@ -28,7 +33,9 @@ const controls = new OrbitControls(camera, renderer.domElement)
 controls.update()
 
 const loader = new GLTFLoader()
-loader.load(Case, function (gltf) {
+
+// Load Case
+loader.load(Case, gltf => {
   let object = gltf.scene
 
   // Reposition the camera and object into the center of the scene
@@ -53,8 +60,31 @@ loader.load(Case, function (gltf) {
   camera.lookAt(modelCenter)
 
   scene.add(object)
-}, undefined, function (error) {
+}, undefined, error => {
   console.error(error)
+})
+
+// Load Fan
+loader.load(Fan, gltf => {
+  let object = gltf.scene
+
+  // Position into default position
+  object.scale.set(40, 40, 40)
+  object.rotation.set(0, 9.4, 4.7)
+  object.position.set(-202, 122, 36)
+
+  scene.add(object)
+
+  // Animate fan blades
+  fanBladesAnimation = Anime({
+    targets: scene.getObjectByName('Fan_Blades').rotation,
+    y: 12.5,
+    easing: 'linear',
+    loop: true,
+    duration: 2500,
+  })
+}, undefined, error => {
+    console.error(error)
 })
 
 const animate = () => {
