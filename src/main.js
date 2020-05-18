@@ -5,9 +5,14 @@ import Case from '../assets/models/case.glb'
 import Fan from '../assets/models/fan.glb'
 import Anime from 'animejs'
 
-const root = document.getElementById('root')
 const scene = new THREE.Scene()
 const interactableObjects = []
+let INTERSECTED
+
+// Elements
+const root = document.getElementById('root')
+const body = document.getElementsByTagName('body')[0]
+const toggleFanBtn = document.getElementById('toggle-fans')
 
 // Raycaster
 const raycaster = new THREE.Raycaster()
@@ -106,19 +111,27 @@ const render = () => {
 
   const intersects = raycaster.intersectObjects(interactableObjects, true)
 
-  for (let i = 0; i < intersects.length; i++) {
-    const object = intersects[i].object
-    const parent = object.parent
+  if (intersects.length > 0) {
+    if (INTERSECTED != intersects[0].object) {
+      if (INTERSECTED) {
+        setChildrenHex(INTERSECTED.parent.children, INTERSECTED.currentHex)
+      }
 
-    if (parent.name === 'RearFan') {
-      // Highlight
+      INTERSECTED = intersects[0].object
+      INTERSECTED.currentHex = INTERSECTED.material.emissive.getHex()
+
+      setChildrenHex(INTERSECTED.parent.children, 0xff0000)
     }
+  } else {
+    if (INTERSECTED) {
+      setChildrenHex(INTERSECTED.parent.children, INTERSECTED.currentHex)
+    }
+
+    INTERSECTED = null
   }
 
   renderer.render(scene, camera)
 }
-
-const toggleFanBtn = document.getElementById('toggle-fans')
 
 const toggleFans = () => {
   if (fanBladesAnimation.paused) {
@@ -131,6 +144,13 @@ const toggleFans = () => {
 const onMouseMove = event => {
   mouse.x = (event.clientX / window.innerWidth) * 2 - 1
   mouse.y = - (event.clientY / window.innerHeight) * 2 + 1
+}
+
+const setChildrenHex = (children, colour) => {
+  body.style = (colour === 0) ? 'cursor: default' : 'cursor: pointer'
+  for (let i = 0; i < children.length; i++) {
+    children[i].material.emissive.setHex(colour)
+  }
 }
 
 // Event listeners
