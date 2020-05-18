@@ -1,12 +1,16 @@
 import * as THREE from 'three'
 import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader'
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls'
-import Case from '../assets/models/case.gltf'
-import Fan from '../assets/models/fan.gltf'
+import Case from '../assets/models/case.glb'
+import Fan from '../assets/models/fan.glb'
 import Anime from 'animejs'
 
 const root = document.getElementById('root')
 const scene = new THREE.Scene()
+
+// Raycaster
+const raycaster = new THREE.Raycaster()
+const mouse = new THREE.Vector2()
 
 // Animations
 let fanBladesAnimation
@@ -37,6 +41,7 @@ const loader = new GLTFLoader()
 // Load Case
 loader.load(Case, gltf => {
   let object = gltf.scene
+  object.name = 'Case'
 
   // Reposition the camera and object into the center of the scene
   object.updateMatrixWorld()
@@ -67,6 +72,7 @@ loader.load(Case, gltf => {
 // Load Fan
 loader.load(Fan, gltf => {
   let object = gltf.scene
+  object.name = 'RearFan'
 
   // Position into default position
   object.scale.set(40, 40, 40)
@@ -90,10 +96,26 @@ loader.load(Fan, gltf => {
 const animate = () => {
   requestAnimationFrame(animate)
   controls.update()
-  renderer.render(scene, camera)
+  render()
 }
 
-animate()
+const render = () => {
+  raycaster.setFromCamera(mouse, camera)
+
+  const intersects = raycaster.intersectObjects(scene.children, true)
+
+  for (let i = 0; i < intersects.length; i++) {
+    const object = intersects[i].object
+    const parent = object.parent
+
+    // console.log(object.parent)
+    if (parent.name === 'RearFan') {
+      // Highlight
+    }
+  }
+
+  renderer.render(scene, camera)
+}
 
 const toggleFanBtn = document.getElementById('toggle-fans')
 
@@ -105,4 +127,13 @@ const toggleFans = () => {
   }
 }
 
-toggleFanBtn.addEventListener('click', toggleFans)
+const onMouseMove = event => {
+  mouse.x = (event.clientX / window.innerWidth) * 2 - 1
+  mouse.y = - (event.clientY / window.innerHeight) * 2 + 1
+}
+
+// Event listeners
+toggleFanBtn.addEventListener('click', toggleFans, false)
+window.addEventListener('mousemove', onMouseMove, false)
+
+animate()
