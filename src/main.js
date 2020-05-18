@@ -7,6 +7,7 @@ import Anime from 'animejs'
 
 const root = document.getElementById('root')
 const scene = new THREE.Scene()
+const interactableObjects = []
 
 // Raycaster
 const raycaster = new THREE.Raycaster()
@@ -79,6 +80,7 @@ loader.load(Fan, gltf => {
   object.rotation.set(0, 9.4, 4.7)
   object.position.set(-202, 122, 36)
 
+  interactableObjects.push(object)
   scene.add(object)
 
   // Animate fan blades
@@ -102,13 +104,12 @@ const animate = () => {
 const render = () => {
   raycaster.setFromCamera(mouse, camera)
 
-  const intersects = raycaster.intersectObjects(scene.children, true)
+  const intersects = raycaster.intersectObjects(interactableObjects, true)
 
   for (let i = 0; i < intersects.length; i++) {
     const object = intersects[i].object
     const parent = object.parent
 
-    // console.log(object.parent)
     if (parent.name === 'RearFan') {
       // Highlight
     }
