@@ -47,7 +47,6 @@ const loader = new GLTFLoader()
 // Load Case
 loader.load(Case, gltf => {
   let object = gltf.scene
-  object.name = 'Case'
 
   // Reposition the camera and object into the center of the scene
   object.updateMatrixWorld()
@@ -58,13 +57,16 @@ loader.load(Case, gltf => {
   const modelCenter = new THREE.Vector3()
   boundingBox.getCenter(modelCenter)
 
-  object.position.x = -modelCenter.x
-  object.position.y = -modelCenter.y
-  object.position.z = -modelCenter.z
-  camera.position.copy(modelCenter)
-  camera.position.x += modelSize * cameraPos.x
-  camera.position.y += modelSize * cameraPos.y
-  camera.position.z += modelSize * cameraPos.z
+  object.position.set(
+    -modelCenter.x,
+    -modelCenter.y,
+    -modelCenter.z
+  )
+  camera.position.set(
+    modelSize * cameraPos.x,
+    modelSize * cameraPos.y,
+    modelSize * cameraPos.z
+  )
   camera.near = modelSize / 100
   camera.far = modelSize * 100
   camera.updateProjectionMatrix()
@@ -78,7 +80,6 @@ loader.load(Case, gltf => {
 // Load Fan
 loader.load(Fan, gltf => {
   let object = gltf.scene
-  object.name = 'RearFan'
 
   // Position into default position
   object.scale.set(40, 40, 40)
@@ -134,11 +135,7 @@ const render = () => {
 }
 
 const toggleFans = () => {
-  if (fanBladesAnimation.paused) {
-    fanBladesAnimation.play()
-  } else {
-    fanBladesAnimation.pause()
-  }
+  fanBladesAnimation.paused ? fanBladesAnimation.play() : fanBladesAnimation.pause()
 }
 
 const onMouseMove = event => {
