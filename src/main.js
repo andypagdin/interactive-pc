@@ -17,12 +17,12 @@ const defaultObjProps = {
   RearFan: {
     title: 'Rear Fan',
     description: 'Fans are used to draw cooler air into the case from the outside, expel warm air from inside and move air across a heat sink to cool a particular component.',
-    position: { x: -652, y: 122, z: 36 },
+    position: { x: -602, y: 122, z: 36 },
     rotation: { x: 0, y: 9.4, z: 4.7 }
   }
 }
 const displayPositionProps = {
-  position: { x: 0, y: 100, z: 0 },
+  position: { x: 20, y: 100, z: 0 },
   rotation: { y: 15.7 }
 }
 
@@ -51,7 +51,7 @@ renderer.outputEncoding = THREE.sRGBEncoding
 root.appendChild(renderer.domElement)
 
 // Camera
-const camera = new THREE.PerspectiveCamera(30, window.innerWidth / window.innerHeight, 1, 1000)
+const camera = new THREE.PerspectiveCamera(25, window.innerWidth / window.innerHeight, 1, 1000)
 const cameraPos = new THREE.Vector3(1, 0.6, 2)
 scene.add(camera)
 
@@ -76,7 +76,7 @@ loader.load(Case, gltf => {
   boundingBox.getCenter(modelCenter)
 
   object.position.set(
-    -modelCenter.x - 450,
+    -modelCenter.x - 400,
     -modelCenter.y,
     -modelCenter.z
   )
