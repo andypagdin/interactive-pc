@@ -15,8 +15,8 @@ const defaultObjProps = {
     description: 'Click on another component to learn about it'
   },
   RearFan: {
-    title: 'Rear Fan',
-    description: 'Fans are used to draw cooler air into the case from the outside, expel warm air from inside and move air across a heat sink to cool a particular component.',
+    title: 'Exhaust Fan',
+    description: 'Fans are used to move air through the computer case. The components inside the case cannot dissipate heat efficiently if the surrounding air is too hot. <p> Commonly placed on the rear or top of the case, exhaust fans will expel the warm air.',
     position: { x: -602, y: 122, z: 36 },
     rotation: { x: 0, y: 9.4, z: 4.7 }
   }
@@ -95,7 +95,7 @@ loader.load(Case, gltf => {
   console.error(error)
 })
 
-// Load Fan
+// Load Rear Fan
 loader.load(Fan, gltf => {
   let object = gltf.scene
   object.name = "RearFan"
