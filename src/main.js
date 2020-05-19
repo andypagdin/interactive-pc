@@ -1,6 +1,5 @@
 import * as THREE from 'three'
 import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader'
-import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls'
 import Case from '../assets/models/case.glb'
 import Fan from '../assets/models/fan.glb'
 import Anime from 'animejs'
@@ -55,10 +54,6 @@ scene.add(camera)
 // Lights
 const light = new THREE.HemisphereLight(0xffffff, 0x222222, 1.2)
 scene.add(light)
-
-// Controls
-const controls = new OrbitControls(camera, renderer.domElement)
-controls.update()
 
 const loader = new GLTFLoader()
 
@@ -132,7 +127,6 @@ loader.load(Fan, gltf => {
 
 const animate = () => {
   requestAnimationFrame(animate)
-  controls.update()
   render()
 }
 
@@ -172,7 +166,7 @@ const onMouseMove = event => {
   mouse.y = - (event.clientY / window.innerHeight) * 2 + 1
 }
 
-const onClick = event => {
+const onClick = () => {
   // Display clicked objects details
   if (INTERSECTED) {
     const parent = INTERSECTED.parent
@@ -191,7 +185,7 @@ const onClick = event => {
       }
       DISPLAY_POSITION = parent
       // Move to display position
-      animateToPosition(parent, true, { x: 150, y: 140, z: 170 }, { y: 15.7 })
+      animateToPosition(parent, true, { x: 150, y: 155, z: 170 }, { y: 15.7 })
     } else {
       // If you click the object currently in display position, move it back to default position
       DISPLAY_POSITION = null
@@ -250,9 +244,16 @@ const setChildrenHex = (children, colour) => {
   }
 }
 
+const onWindowResize = () => {
+  camera.aspect = window.innerWidth / window.innerHeight
+  camera.updateProjectionMatrix()
+  renderer.setSize(window.innerWidth, window.innerHeight)
+}
+
 // Event listeners
 toggleFanBtn.addEventListener('click', toggleFans, false)
 window.addEventListener('mousemove', onMouseMove, false)
 window.addEventListener('click', onClick, false)
+window.addEventListener('resize', onWindowResize, false)
 
 animate()
