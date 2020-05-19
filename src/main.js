@@ -18,7 +18,7 @@ const defaultObjProps = {
     title: 'Rear Fan',
     description: 'Fans are used to draw cooler air into the case from the outside, expel warm air from inside and move air across a heat sink to cool a particular component.',
     position: { x: -652, y: 122, z: 36 },
-    rotation: { x: 0, y: 9.4, z: 4.7}
+    rotation: { x: 0, y: 9.4, z: 4.7 }
   }
 }
 const displayPositionProps = {
@@ -171,6 +171,9 @@ const onMouseMove = event => {
 }
 
 const onClick = () => {
+  // Ignore clicks if there is an animation in progress
+  if (toDisplayAnimation && !toDisplayAnimation.completed) return
+
   // Display clicked objects details
   if (INTERSECTED) {
     const parent = INTERSECTED.parent
@@ -194,14 +197,14 @@ const onClick = () => {
       // If you click the object currently in display position, move it back to default position
       DISPLAY_POSITION = null
       animateToPosition(parent, false, defaultObjProps[parent.name].position, defaultObjProps[parent.name].rotation)
+      resetContent()
     }
   } else {
-    title.innerHTML = defaultObjProps['Default'].title
-    description.innerHTML = defaultObjProps['Default'].description
-
+    resetContent()
     // If there are any models in display position, move them back
     if (DISPLAY_POSITION) {
       animateToPosition(DISPLAY_POSITION, false, defaultObjProps[DISPLAY_POSITION.name].position, defaultObjProps[DISPLAY_POSITION.name].rotation)
+      DISPLAY_POSITION = null
     }
   }
 }
@@ -248,6 +251,11 @@ const animateToPosition = (target, loopRotation, position, rotation) => {
       duration: 500
     })
   }
+}
+
+const resetContent = () => {
+  title.innerHTML = defaultObjProps['Default'].title
+  description.innerHTML = defaultObjProps['Default'].description
 }
 
 const setChildrenHex = (children, colour) => {
