@@ -21,6 +21,10 @@ const defaultObjProps = {
     rotation: { x: 0, y: 9.4, z: 4.7}
   }
 }
+const displayPositionProps = {
+  position: { x: 0, y: 100, z: 0 },
+  rotation: { y: 15.7 }
+}
 
 // Elements
 const root = document.getElementById('root')
@@ -185,7 +189,7 @@ const onClick = () => {
       }
       DISPLAY_POSITION = parent
       // Move to display position
-      animateToPosition(parent, true, { x: 165, y: 140, z: 200 }, { y: 15.7 })
+      animateToPosition(parent, true, displayPositionProps.position, displayPositionProps.rotation)
     } else {
       // If you click the object currently in display position, move it back to default position
       DISPLAY_POSITION = null
@@ -209,14 +213,15 @@ const animateToPosition = (target, loopRotation, position, rotation) => {
     duration: 500
   })
 
-  toDisplayAnimation.add({
-    z: position.z,
-  }).add({
-    x: position.x,
-    y: position.y
-  })
-
+  // Coming out to display position
   if (loopRotation) {
+    toDisplayAnimation.add({
+      z: 200,
+    }).add({
+      z: position.z,
+      x: position.x,
+      y: position.y
+    })
     window.setTimeout(() => {
       onDisplayAnimation = Anime({
         targets: target.rotation,
@@ -226,7 +231,15 @@ const animateToPosition = (target, loopRotation, position, rotation) => {
         duration: 3000
       })
     }, 800)
+  // Going back into case
   } else {
+    toDisplayAnimation.add({
+      z: 200,
+      x: position.x,
+      y: position.y
+    }).add({
+      z: position.z
+    })
     onDisplayAnimation.pause()
     onDisplayAnimation = Anime({
       targets: target.rotation,
