@@ -11,12 +11,12 @@ let DISPLAY_POSITION
 
 const defaultObjProps = {
   Default: {
-    title: 'Title',
-    description: 'Description'
+    title: 'Keep going!',
+    description: 'Click on another component to learn about it'
   },
   RearFan: {
     title: 'Rear Fan',
-    description: 'This is a rear fan!',
+    description: 'Fans are used to draw cooler air into the case from the outside, expel warm air from inside and move air across a heat sink to cool a particular component.',
     position: { x: -652, y: 122, z: 36 },
     rotation: { x: 0, y: 9.4, z: 4.7}
   }
@@ -40,7 +40,7 @@ let onDisplayAnimation
 
 // Renderer
 const renderer = new THREE.WebGLRenderer({ antialias: true, logarithmicDepthBuffer: true })
-renderer.setClearColor(0x5ae8d0)
+renderer.setClearColor(0xecf0f1)
 renderer.setPixelRatio(window.devicePixelRatio)
 renderer.setSize(window.innerWidth, window.innerHeight)
 renderer.outputEncoding = THREE.sRGBEncoding
@@ -120,7 +120,7 @@ loader.load(Fan, gltf => {
     loop: true,
     duration: 2500,
   })
-  fanBladesAnimation.pause()
+  // fanBladesAnimation.pause()
 }, undefined, error => {
     console.error(error)
 })
@@ -185,7 +185,7 @@ const onClick = () => {
       }
       DISPLAY_POSITION = parent
       // Move to display position
-      animateToPosition(parent, true, { x: 150, y: 155, z: 170 }, { y: 15.7 })
+      animateToPosition(parent, true, { x: 165, y: 140, z: 200 }, { y: 15.7 })
     } else {
       // If you click the object currently in display position, move it back to default position
       DISPLAY_POSITION = null
