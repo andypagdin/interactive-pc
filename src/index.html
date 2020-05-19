@@ -17,8 +17,8 @@
       }
 
       #controls {
-        width: 200px;
-        height: 50px;
+        width: 100px;
+        height: 30px;
         padding: 10px;
         background-color: #000;
         position: absolute;
@@ -26,12 +26,27 @@
         right: 0;
         color: #fff;
       }
+
+      #object-container {
+        position: absolute;
+        background-color: blueviolet;
+        top: 30%;
+        margin-left: 60%;
+      }
+
+      #object-container div {
+        padding: 15px;
+      }
     </style>
   </header>
   <body>
     <div id="root">
       <div id="controls">
         <button id="toggle-fans">Fans</button>
+      </div>
+      <div id="object-container">
+        <div id="title">Title</div>
+        <div id="description">Description</div>
       </div>
     </div>
   </body>
