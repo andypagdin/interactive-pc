@@ -23,10 +23,10 @@ const defaultObjProps = {
     rotation: { x: 0, y: 9.4, z: 4.7 }
   },
   Ram: {
-    title: 'RAM',
-    description: 'Random access memory.',
-    position: { x: -400, y: 122, z: 36 },
-    rotation: { x: 0, y: 0, z: 0 }
+    title: 'Random-Access Memory',
+    description: 'A form of computer memory that can be read and changed in any order, typically used to store working data and machine code. <p> A random-access memory device allows data items to be read or written in almost the same amount of time irrespective of the physical location of data inside the memory.',
+    position: { x: -400, y: 134, z: -66 },
+    rotation: { x: 0, y: 4.8, z: -1.58 }
   }
 }
 const displayPositionProps = {
@@ -36,7 +36,7 @@ const displayPositionProps = {
   },
   Ram: {
     position: { x: 20, y: 100, z: 0 },
-    rotation: { y: 6.3 }
+    rotation: { y: 11.1 }
   }
 }
 
@@ -143,7 +143,7 @@ loader.load(Ram, gltf => {
   object.name = 'Ram'
 
   // Position into default position
-  object.scale.set(40, 40, 40)
+  object.scale.set(30, 30, 30)
   setPositionAndRotation(object, defaultObjProps.Ram)
 
   interactableObjects.push(object)
