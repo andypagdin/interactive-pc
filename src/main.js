@@ -25,13 +25,19 @@ const defaultObjProps = {
   Ram: {
     title: 'RAM',
     description: 'Random access memory.',
-    position: { x: -400, y: 0, z: 36 },
+    position: { x: -400, y: 122, z: 36 },
     rotation: { x: 0, y: 0, z: 0 }
   }
 }
 const displayPositionProps = {
-  position: { x: 20, y: 100, z: 0 },
-  rotation: { y: 15.7 }
+  RearFan: {
+    position: { x: 20, y: 100, z: 0 },
+    rotation: { y: 15.7 }
+  },
+  Ram: {
+    position: { x: 20, y: 100, z: 0 },
+    rotation: { y: 6.3 }
+  }
 }
 
 // Elements
@@ -109,20 +115,11 @@ loader.load(Case, gltf => {
 // Load Rear Fan
 loader.load(Fan, gltf => {
   let object = gltf.scene
-  object.name = "RearFan"
+  object.name = 'RearFan'
 
   // Position into default position
   object.scale.set(40, 40, 40)
-  object.rotation.set(
-    defaultObjProps.RearFan.rotation.x,
-    defaultObjProps.RearFan.rotation.y,
-    defaultObjProps.RearFan.rotation.z
-  )
-  object.position.set(
-    defaultObjProps.RearFan.position.x,
-    defaultObjProps.RearFan.position.y,
-    defaultObjProps.RearFan.position.z
-  )
+  setPositionAndRotation(object, defaultObjProps.RearFan)
 
   interactableObjects.push(object)
   scene.add(object)
@@ -145,22 +142,9 @@ loader.load(Ram, gltf => {
   let object = gltf.scene
   object.name = 'Ram'
 
-  console.log(object)
-
   // Position into default position
   object.scale.set(40, 40, 40)
-  object.rotation.set(
-    defaultObjProps.Ram.rotation.x,
-    defaultObjProps.Ram.rotation.y,
-    defaultObjProps.Ram.rotation.z
-  )
-  object.position.set(
-    defaultObjProps.Ram.position.x,
-    defaultObjProps.Ram.position.y,
-    defaultObjProps.Ram.position.z
-  )
-
-  object.scale.set(40, 40, 40)
+  setPositionAndRotation(object, defaultObjProps.Ram)
 
   interactableObjects.push(object)
   scene.add(object)
@@ -180,9 +164,7 @@ const render = () => {
 
   if (intersects.length > 0) {
     if (INTERSECTED != intersects[0].object) {
-      if (INTERSECTED) {
-        setChildrenHex(INTERSECTED.parent.children, INTERSECTED.currentHex)
-      }
+      if (INTERSECTED) setChildrenHex(INTERSECTED.parent.children, INTERSECTED.currentHex)
 
       INTERSECTED = intersects[0].object
       INTERSECTED.currentHex = INTERSECTED.material.emissive.getHex()
@@ -190,9 +172,7 @@ const render = () => {
       setChildrenHex(INTERSECTED.parent.children, 0xff0000)
     }
   } else {
-    if (INTERSECTED) {
-      setChildrenHex(INTERSECTED.parent.children, INTERSECTED.currentHex)
-    }
+    if (INTERSECTED) setChildrenHex(INTERSECTED.parent.children, INTERSECTED.currentHex)
 
     INTERSECTED = null
   }
@@ -201,23 +181,18 @@ const render = () => {
   renderer.render(scene, camera)
 }
 
-const toggleFans = () => {
-  fanBladesAnimation.paused ? fanBladesAnimation.play() : fanBladesAnimation.pause()
-}
-
-const onMouseMove = event => {
-  mouse.x = (event.clientX / window.innerWidth) * 2 - 1
-  mouse.y = - (event.clientY / window.innerHeight) * 2 + 1
-}
-
 const onClick = () => {
   // Ignore clicks if there is an animation in progress
   if (toDisplayAnimation && !toDisplayAnimation.completed) return
 
   // Display clicked objects details
   if (INTERSECTED) {
-    const parent = INTERSECTED.parent
-    console.log(parent)
+    let parent = INTERSECTED.parent
+
+    // TODO: fix this properly
+    // Account for models where the immediate parent is not the scene, temp solution is to assume the
+    // correct parent is only nested one level above
+    if (parent.parent.type !== 'Scene') parent = parent.parent
 
     title.innerHTML = defaultObjProps[parent.name].title
     description.innerHTML = defaultObjProps[parent.name].description
@@ -228,12 +203,11 @@ const onClick = () => {
         parent.position.y === defaultObjProps[parent.name].position.y &&
         parent.position.z === defaultObjProps[parent.name].position.z) {
       // If there is already something in display position, move it back
-      if (DISPLAY_POSITION) {
-        animateToPosition(DISPLAY_POSITION, false, defaultObjProps[DISPLAY_POSITION.name].position, defaultObjProps[DISPLAY_POSITION.name].rotation)
-      }
+      if (DISPLAY_POSITION) animateToPosition(DISPLAY_POSITION, false, defaultObjProps[DISPLAY_POSITION.name].position, defaultObjProps[DISPLAY_POSITION.name].rotation)
+
       DISPLAY_POSITION = parent
       // Move to display position
-      animateToPosition(parent, true, displayPositionProps.position, displayPositionProps.rotation)
+      animateToPosition(parent, true, displayPositionProps[parent.name].position, displayPositionProps[parent.name].rotation)
     } else {
       // If you click the object currently in display position, move it back to default position
       DISPLAY_POSITION = null
@@ -259,13 +233,8 @@ const animateToPosition = (target, loopRotation, position, rotation) => {
 
   // Coming out to display position
   if (loopRotation) {
-    toDisplayAnimation.add({
-      z: 180,
-    }).add({
-      z: position.z,
-      x: position.x,
-      y: position.y
-    })
+    toDisplayAnimation.add({ z: 180 }).add({ x: position.x, y: position.y, z: position.z })
+    // Rotate object on y after reaching display position
     window.setTimeout(() => {
       onDisplayAnimation = Anime({
         targets: target.rotation,
@@ -275,18 +244,12 @@ const animateToPosition = (target, loopRotation, position, rotation) => {
         duration: 3000
       })
     }, 800)
+  }
   // Going back into case
-  } else {
-    toDisplayAnimation.add({
-      z: 180,
-      x: position.x,
-      y: position.y
-    }).add({
-      z: position.z
-    })
-    if (onDisplayAnimation) {
-      onDisplayAnimation.pause()
-    }
+  else {
+    toDisplayAnimation.add({ x: position.x, y: position.y, z: 180 }).add({ z: position.z })
+    // Pause on display animation and rotate back to default y position
+    if (onDisplayAnimation) onDisplayAnimation.pause()
     onDisplayAnimation = Anime({
       targets: target.rotation,
       y: rotation.y,
@@ -294,6 +257,14 @@ const animateToPosition = (target, loopRotation, position, rotation) => {
       duration: 500
     })
   }
+}
+
+// Helper methods
+const toggleFans = () => fanBladesAnimation.paused ? fanBladesAnimation.play() : fanBladesAnimation.pause()
+
+const onMouseMove = event => {
+  mouse.x = (event.clientX / window.innerWidth) * 2 - 1
+  mouse.y = - (event.clientY / window.innerHeight) * 2 + 1
 }
 
 const resetContent = () => {
@@ -304,9 +275,7 @@ const resetContent = () => {
 const setChildrenHex = (children, colour) => {
   body.style = (colour === 0) ? 'cursor: default' : 'cursor: pointer'
   for (let i = 0; i < children.length; i++) {
-    if (children[i].material) {
-      children[i].material.emissive.setHex(colour)
-    }
+    children[i].material.emissive.setHex(colour)
   }
 }
 
@@ -314,6 +283,11 @@ const onWindowResize = () => {
   camera.aspect = window.innerWidth / window.innerHeight
   camera.updateProjectionMatrix()
   renderer.setSize(window.innerWidth, window.innerHeight)
+}
+
+const setPositionAndRotation = (object, props) => {
+  object.rotation.set(props.rotation.x, props.rotation.y, props.rotation.z)
+  object.position.set(props.position.x, props.position.y, props.position.z)
 }
 
 // Event listeners
