@@ -4,6 +4,7 @@ import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls'
 import Case from '../assets/models/case.glb'
 import Fan from '../assets/models/fan.glb'
 import Ram from '../assets/models/ram.glb'
+import GraphicsCard from '../assets/models/gpu.glb'
 import Anime from 'animejs'
 
 const scene = new THREE.Scene()
@@ -27,8 +28,15 @@ const defaultObjProps = {
     description: 'A form of computer memory that can be read and changed in any order, typically used to store working data and machine code. <p> A random-access memory device allows data items to be read or written in almost the same amount of time irrespective of the physical location of data inside the memory.',
     position: { x: -400, y: 134, z: -66 },
     rotation: { x: 0, y: 4.8, z: -1.58 }
+  },
+  GraphicsCard: {
+    title: 'Graphics Card',
+    description: 'graphics card',
+    position: { x: -530, y: 30, z: -55 },
+    rotation: { x: -4.7, y: 0, z: 0 }
   }
 }
+
 const displayPositionProps = {
   RearFan: {
     position: { x: 20, y: 100, z: 0 },
@@ -36,7 +44,13 @@ const displayPositionProps = {
   },
   Ram: {
     position: { x: 20, y: 100, z: 0 },
+    preRotation: { x: 0, y: 4.8, z: 0 },
     rotation: { y: 11.1 }
+  },
+  GraphicsCard: {
+    position: { x: 20, y: 100, z: 0 },
+    preRotation: { x: -6.3, y: 0, z: 0 },
+    rotation: { y: 6.3 }
   }
 }
 
@@ -55,6 +69,7 @@ const mouse = new THREE.Vector2()
 let fanBladesAnimation
 let toDisplayAnimation
 let onDisplayAnimation
+let preDisplayAnimation
 
 // Renderer
 const renderer = new THREE.WebGLRenderer({ antialias: true, logarithmicDepthBuffer: true })
@@ -137,7 +152,7 @@ loader.load(Fan, gltf => {
     console.error(error)
 })
 
-// Load Ram 1
+// Load Ram
 loader.load(Ram, gltf => {
   let object = gltf.scene
   object.name = 'Ram'
@@ -150,6 +165,21 @@ loader.load(Ram, gltf => {
   scene.add(object)
 }, undefined, error => {
     console.log(error)
+})
+
+// Load graphics card
+loader.load(GraphicsCard, gltf => {
+  let object = gltf.scene
+  object.name = 'GraphicsCard'
+
+  // Position into default position
+  object.scale.set(40, 40, 40)
+  setPositionAndRotation(object, defaultObjProps.GraphicsCard)
+
+  interactableObjects.push(object)
+  scene.add(object)
+}, undefined, error => {
+  console.log(error)
 })
 
 const animate = () => {
@@ -207,7 +237,7 @@ const onClick = () => {
 
       DISPLAY_POSITION = parent
       // Move to display position
-      animateToPosition(parent, true, displayPositionProps[parent.name].position, displayPositionProps[parent.name].rotation)
+      animateToPosition(parent, true, displayPositionProps[parent.name].position, displayPositionProps[parent.name].rotation, displayPositionProps[parent.name].preRotation)
     } else {
       // If you click the object currently in display position, move it back to default position
       DISPLAY_POSITION = null
@@ -224,7 +254,7 @@ const onClick = () => {
   }
 }
 
-const animateToPosition = (target, loopRotation, position, rotation) => {
+const animateToPosition = (target, loopRotation, position, rotation, preRotation = null) => {
   toDisplayAnimation = Anime.timeline({
     targets: target.position,
     easing: 'easeOutSine',
@@ -233,7 +263,18 @@ const animateToPosition = (target, loopRotation, position, rotation) => {
 
   // Coming out to display position
   if (loopRotation) {
-    toDisplayAnimation.add({ z: 180 }).add({ x: position.x, y: position.y, z: position.z })
+    toDisplayAnimation.add({ z: 180 }).add({ x: position.x, y: position.y }).add({ z: position.z })
+    // Perform any pre rotation rotation
+    if (preRotation) {
+      preDisplayAnimation = Anime({
+        targets: target.rotation,
+        x: preRotation.x,
+        y: preRotation.y,
+        z: preRotation.z,
+        easing: 'linear',
+        duration: 500
+      })
+    }
     // Rotate object on y after reaching display position
     window.setTimeout(() => {
       onDisplayAnimation = Anime({
@@ -247,14 +288,16 @@ const animateToPosition = (target, loopRotation, position, rotation) => {
   }
   // Going back into case
   else {
-    toDisplayAnimation.add({ x: position.x, y: position.y, z: 180 }).add({ z: position.z })
+    toDisplayAnimation.add({ z: 180 }).add({ x: position.x, y: position.y }).add({ z: position.z })
     // Pause on display animation and rotate back to default y position
     if (onDisplayAnimation) onDisplayAnimation.pause()
     onDisplayAnimation = Anime({
       targets: target.rotation,
       y: rotation.y,
+      x: rotation.x,
+      z: rotation.z,
       easing: 'linear',
-      duration: 500
+      duration: 1000
     })
   }
 }
