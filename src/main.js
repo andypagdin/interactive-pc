@@ -1,7 +1,9 @@
 import * as THREE from 'three'
 import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader'
+import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls'
 import Case from '../assets/models/case.glb'
 import Fan from '../assets/models/fan.glb'
+import Ram from '../assets/models/ram.glb'
 import Anime from 'animejs'
 
 const scene = new THREE.Scene()
@@ -19,6 +21,12 @@ const defaultObjProps = {
     description: 'Fans are used to move air through the computer case. The components inside the case cannot dissipate heat efficiently if the surrounding air is too hot. <p> Commonly placed on the rear or top of the case, exhaust fans will expel the warm air.',
     position: { x: -602, y: 122, z: 36 },
     rotation: { x: 0, y: 9.4, z: 4.7 }
+  },
+  Ram: {
+    title: 'RAM',
+    description: 'Random access memory.',
+    position: { x: -400, y: 0, z: 36 },
+    rotation: { x: 0, y: 0, z: 0 }
   }
 }
 const displayPositionProps = {
@@ -58,6 +66,9 @@ scene.add(camera)
 // Lights
 const light = new THREE.HemisphereLight(0xffffff, 0x222222, 1.2)
 scene.add(light)
+
+const controls = new OrbitControls(camera, renderer.domElement)
+controls.update()
 
 const loader = new GLTFLoader()
 
@@ -124,9 +135,37 @@ loader.load(Fan, gltf => {
     loop: true,
     duration: 2500,
   })
-  // fanBladesAnimation.pause()
+  fanBladesAnimation.pause()
 }, undefined, error => {
     console.error(error)
+})
+
+// Load Ram 1
+loader.load(Ram, gltf => {
+  let object = gltf.scene
+  object.name = 'Ram'
+
+  console.log(object)
+
+  // Position into default position
+  object.scale.set(40, 40, 40)
+  object.rotation.set(
+    defaultObjProps.Ram.rotation.x,
+    defaultObjProps.Ram.rotation.y,
+    defaultObjProps.Ram.rotation.z
+  )
+  object.position.set(
+    defaultObjProps.Ram.position.x,
+    defaultObjProps.Ram.position.y,
+    defaultObjProps.Ram.position.z
+  )
+
+  object.scale.set(40, 40, 40)
+
+  interactableObjects.push(object)
+  scene.add(object)
+}, undefined, error => {
+    console.log(error)
 })
 
 const animate = () => {
@@ -158,6 +197,7 @@ const render = () => {
     INTERSECTED = null
   }
 
+  controls.update()
   renderer.render(scene, camera)
 }
 
@@ -177,6 +217,7 @@ const onClick = () => {
   // Display clicked objects details
   if (INTERSECTED) {
     const parent = INTERSECTED.parent
+    console.log(parent)
 
     title.innerHTML = defaultObjProps[parent.name].title
     description.innerHTML = defaultObjProps[parent.name].description
@@ -219,7 +260,7 @@ const animateToPosition = (target, loopRotation, position, rotation) => {
   // Coming out to display position
   if (loopRotation) {
     toDisplayAnimation.add({
-      z: 200,
+      z: 180,
     }).add({
       z: position.z,
       x: position.x,
@@ -237,13 +278,15 @@ const animateToPosition = (target, loopRotation, position, rotation) => {
   // Going back into case
   } else {
     toDisplayAnimation.add({
-      z: 200,
+      z: 180,
       x: position.x,
       y: position.y
     }).add({
       z: position.z
     })
-    onDisplayAnimation.pause()
+    if (onDisplayAnimation) {
+      onDisplayAnimation.pause()
+    }
     onDisplayAnimation = Anime({
       targets: target.rotation,
       y: rotation.y,
@@ -261,7 +304,9 @@ const resetContent = () => {
 const setChildrenHex = (children, colour) => {
   body.style = (colour === 0) ? 'cursor: default' : 'cursor: pointer'
   for (let i = 0; i < children.length; i++) {
-    children[i].material.emissive.setHex(colour)
+    if (children[i].material) {
+      children[i].material.emissive.setHex(colour)
+    }
   }
 }
 
