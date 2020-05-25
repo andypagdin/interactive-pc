@@ -58,7 +58,7 @@ const objectProps = {
     rotation: { x: 0, y: 0, z: 0 },
     display: {
       position: { x: -5, y: 0, z: 0 },
-      rotation: { x: 1.6, y: 0, z: 6.3 },
+      rotation: { x: 1.6, y: 0, z: 6.3 }
     },
     preRotation: { x: 1.6, y: 0, z: 0 }
   },
@@ -69,7 +69,7 @@ const objectProps = {
     rotation: { x: -1.57, y: 0, z: -1.57 },
     display: {
       position: { x: -5, y: -0.5, z: 0 },
-      rotation: { x: 0, y: 1, z: 0 },
+      rotation: { x: 0, y: 6.28, z: -1.6 }
     },
     preRotation: { x: 0, y: 0, z: -1.6 }
   },
@@ -314,7 +314,7 @@ const animateToPosition = (target, loopRotation, position, rotation, preRotation
         duration: 800
       })
     }
-    // Rotate object on y after reaching display position
+    // Rotate object after reaching display position
     window.setTimeout(() => {
       onDisplayAnimation = Anime({
         targets: target.rotation,
