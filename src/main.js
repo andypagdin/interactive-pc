@@ -1,10 +1,7 @@
 import * as THREE from 'three'
 import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader'
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls'
-import Case from '../assets/models/case.glb'
-import Fan from '../assets/models/fan.glb'
-import Ram from '../assets/models/ram.glb'
-import GraphicsCard from '../assets/models/gpu.glb'
+import Case from '../assets/models/case-v2.glb'
 import Anime from 'animejs'
 
 const scene = new THREE.Scene()
@@ -12,7 +9,14 @@ const interactableObjects = []
 let INTERSECTED
 let DISPLAY_POSITION
 
-const defaultObjProps = {
+const interactableObjNames = [
+  'RearFanBlades', 'RearFanCase', 'FrontTopFanBlades', 'FrontTopFanCase', 'FrontBottomFanBlades',
+  'FrontBottomFanCase', 'GraphicsCard', 'Ram'
+]
+
+const sideMenuItems = ['controls', 'toggle-fans']
+
+const objectProps = {
   Default: {
     title: 'Keep going!',
     description: 'Click on another component to learn about it'
@@ -20,38 +24,55 @@ const defaultObjProps = {
   RearFan: {
     title: 'Exhaust Fan',
     description: 'Fans are used to move air through the computer case. The components inside the case cannot dissipate heat efficiently if the surrounding air is too hot. <p> Commonly placed on the rear or top of the case, exhaust fans will expel the warm air.',
-    position: { x: -602, y: 122, z: 36 },
-    rotation: { x: 0, y: 9.4, z: 4.7 }
+    position: { x: 2.23, y: 1.49, z: -0.33 },
+    rotation: { x: 0, y: 0, z: 0 },
+    display: {
+      position: { x: -5, y: 0, z: 0 },
+      rotation: { x: 0, y: 6.3, z: 0 }
+    }
   },
-  Ram: {
-    title: 'Random-Access Memory',
-    description: 'A form of computer memory that can be read and changed in any order, typically used to store working data and machine code. <p> A random-access memory device allows data items to be read or written in almost the same amount of time irrespective of the physical location of data inside the memory.',
-    position: { x: -400, y: 134, z: -66 },
-    rotation: { x: 0, y: 4.8, z: -1.58 }
+  FrontTopFan: {
+    title: 'Front Top Fan',
+    description: 'front top fan',
+    position: { x: -1.81, y: 1.4, z: 0.02 },
+    rotation: { x: 0, y: 0, z: 0 },
+    display: {
+      position: { x: -5, y: 0, z: 0 },
+      rotation: { x: 0, y: 6.3, z: 0 }
+    }
+  },
+  FrontBottomFan: {
+    title: 'Front Bottom Fan',
+    description: 'front bottom fan',
+    position: { x: -1.81, y: 0.21, z: 0.02 },
+    rotation: { x: 0, y: 0, z: 0 },
+    display: {
+      position: { x: -5, y: 0, z: 0 },
+      rotation: { x: 0, y: 6.3, z: 0 }
+    }
   },
   GraphicsCard: {
     title: 'Graphics Card',
     description: 'graphics card',
-    position: { x: -530, y: 30, z: -55 },
-    rotation: { x: -4.7, y: 0, z: 0 }
-  }
-}
-
-const displayPositionProps = {
-  RearFan: {
-    position: { x: 20, y: 100, z: 0 },
-    rotation: { y: 15.7 }
+    position: { x: 0.94, y: 0.56, z: 0.45 },
+    rotation: { x: 0, y: 0, z: 0 },
+    display: {
+      position: { x: -5, y: 0, z: 0 },
+      rotation: { x: 1.6, y: 0, z: 6.3 },
+    },
+    preRotation: { x: 1.6, y: 0, z: 0 }
   },
   Ram: {
-    position: { x: 20, y: 100, z: 0 },
-    preRotation: { x: 0, y: 4.8, z: 0 },
-    rotation: { y: 11.1 }
+    title: 'Random-Access Memory',
+    description: 'A form of computer memory that can be read and changed in any order, typically used to store working data and machine code. <p> A random-access memory device allows data items to be read or written in almost the same amount of time irrespective of the physical location of data inside the memory.',
+    position: { x: -0.02, y: 1.52, z: 0.72 },
+    rotation: { x: -1.57, y: 0, z: -1.57 },
+    display: {
+      position: { x: -5, y: -0.5, z: 0 },
+      rotation: { x: 0, y: 1, z: 0 },
+    },
+    preRotation: { x: 0, y: 0, z: -1.6 }
   },
-  GraphicsCard: {
-    position: { x: 20, y: 100, z: 0 },
-    preRotation: { x: -6.3, y: 0, z: 0 },
-    rotation: { y: 6.3 }
-  }
 }
 
 // Elements
@@ -69,7 +90,6 @@ const mouse = new THREE.Vector2()
 let fanBladesAnimation
 let toDisplayAnimation
 let onDisplayAnimation
-let preDisplayAnimation
 
 // Renderer
 const renderer = new THREE.WebGLRenderer({ antialias: true, logarithmicDepthBuffer: true })
@@ -80,15 +100,23 @@ renderer.outputEncoding = THREE.sRGBEncoding
 root.appendChild(renderer.domElement)
 
 // Camera
-const camera = new THREE.PerspectiveCamera(25, window.innerWidth / window.innerHeight, 1, 1000)
-const cameraPos = new THREE.Vector3(1, 0.6, 2)
+const camera = new THREE.PerspectiveCamera(21, window.innerWidth / window.innerHeight, 1, 1000)
+const cameraPos = new THREE.Vector3(1, 0.1, 2)
 scene.add(camera)
 
 // Lights
-const light = new THREE.HemisphereLight(0xffffff, 0x222222, 1.2)
-scene.add(light)
+const ambientLight = new THREE.AmbientLight(0xffffff, 0.4)
+scene.add(ambientLight);
+
+const pointLight = new THREE.PointLight(0xffffff, 0.8)
+camera.add(pointLight)
+scene.add(camera)
 
 const controls = new OrbitControls(camera, renderer.domElement)
+controls.enableDamping = true
+controls.dampingFactor = 0.07
+controls.rotateSpeed = 0.2
+controls.panSpeed = 0.2
 controls.update()
 
 const loader = new GLTFLoader()
@@ -97,6 +125,61 @@ const loader = new GLTFLoader()
 loader.load(Case, gltf => {
   let object = gltf.scene
   object.name = 'Case'
+
+  const RearFanArr = []
+  const RearFanGroup = new THREE.Group()
+  RearFanGroup.name = 'RearFan'
+  setPosition(RearFanGroup, objectProps.RearFan.position)
+
+  const FrontTopFanArr = []
+  const FrontTopFanGroup = new THREE.Group()
+  FrontTopFanGroup.name = 'FrontTopFan'
+  setPosition(FrontTopFanGroup, objectProps.FrontTopFan.position)
+
+  const FrontBottomFanArr = []
+  const FrontBottomFanGroup = new THREE.Group()
+  FrontBottomFanGroup.name = 'FrontBottomFan'
+  setPosition(FrontBottomFanGroup, objectProps.FrontBottomFan.position)
+
+  const FanBlades = []
+
+  // Loop through all children and add interactable objects
+  for (let i = 0; i < object.children.length; i++) {
+    if (interactableObjNames.indexOf(object.children[i].name) !== -1) {
+      let child = object.children[i]
+      if (child.name.indexOf('FrontTop') !== -1) {
+        if (child.name.indexOf('Blade') !== -1) {
+          FanBlades.push(child.rotation)
+        }
+        child.position.set(0, 0, 0)
+        FrontTopFanArr.push(child)
+      } else if (child.name.indexOf('RearFan') !== -1) {
+        if (child.name.indexOf('Blade') !== -1) {
+          FanBlades.push(child.rotation)
+        }
+        child.position.set(0, 0, 0)
+        RearFanArr.push(child)
+      } else if (child.name.indexOf('FrontBottom') !== -1) {
+        if (child.name.indexOf('Blade') !== -1) {
+          FanBlades.push(child.rotation)
+        }
+        child.position.set(0, 0, 0)
+        FrontBottomFanArr.push(child)
+      } else {
+        interactableObjects.push(child)
+      }
+    }
+  }
+
+  addArrToGroup(FrontTopFanArr, FrontTopFanGroup)
+  addArrToGroup(FrontBottomFanArr, FrontBottomFanGroup)
+  addArrToGroup(RearFanArr, RearFanGroup)
+
+  interactableObjects.push(FrontTopFanGroup, RearFanGroup, FrontBottomFanGroup)
+
+  object.add(FrontTopFanGroup)
+  object.add(RearFanGroup)
+  object.add(FrontBottomFanGroup)
 
   // Reposition the camera and object into the center of the scene
   object.updateMatrixWorld()
@@ -108,10 +191,11 @@ loader.load(Case, gltf => {
   boundingBox.getCenter(modelCenter)
 
   object.position.set(
-    -modelCenter.x - 400,
+    -modelCenter.x - 2.3,
     -modelCenter.y,
     -modelCenter.z
   )
+  object.rotation.set(0, -3.1, 0)
   camera.position.set(
     modelSize * cameraPos.x,
     modelSize * cameraPos.y,
@@ -120,66 +204,20 @@ loader.load(Case, gltf => {
   camera.near = modelSize / 100
   camera.far = modelSize * 100
   camera.updateProjectionMatrix()
-  camera.lookAt(modelCenter)
-
-  scene.add(object)
-}, undefined, error => {
-  console.error(error)
-})
-
-// Load Rear Fan
-loader.load(Fan, gltf => {
-  let object = gltf.scene
-  object.name = 'RearFan'
-
-  // Position into default position
-  object.scale.set(40, 40, 40)
-  setPositionAndRotation(object, defaultObjProps.RearFan)
-
-  interactableObjects.push(object)
-  scene.add(object)
 
   // Animate fan blades
   fanBladesAnimation = Anime({
-    targets: scene.getObjectByName('Fan_Blades').rotation,
-    y: 12.5,
+    targets: FanBlades,
+    x: 12.5,
     easing: 'linear',
     loop: true,
     duration: 2500,
   })
   fanBladesAnimation.pause()
-}, undefined, error => {
-    console.error(error)
-})
 
-// Load Ram
-loader.load(Ram, gltf => {
-  let object = gltf.scene
-  object.name = 'Ram'
-
-  // Position into default position
-  object.scale.set(30, 30, 30)
-  setPositionAndRotation(object, defaultObjProps.Ram)
-
-  interactableObjects.push(object)
   scene.add(object)
 }, undefined, error => {
-    console.log(error)
-})
-
-// Load graphics card
-loader.load(GraphicsCard, gltf => {
-  let object = gltf.scene
-  object.name = 'GraphicsCard'
-
-  // Position into default position
-  object.scale.set(40, 40, 40)
-  setPositionAndRotation(object, defaultObjProps.GraphicsCard)
-
-  interactableObjects.push(object)
-  scene.add(object)
-}, undefined, error => {
-  console.log(error)
+  console.error(error)
 })
 
 const animate = () => {
@@ -194,15 +232,15 @@ const render = () => {
 
   if (intersects.length > 0) {
     if (INTERSECTED != intersects[0].object) {
-      if (INTERSECTED) setChildrenHex(INTERSECTED.parent.children, INTERSECTED.currentHex)
+      if (INTERSECTED) setHex(INTERSECTED, INTERSECTED.currentHex)
 
       INTERSECTED = intersects[0].object
       INTERSECTED.currentHex = INTERSECTED.material.emissive.getHex()
 
-      setChildrenHex(INTERSECTED.parent.children, 0xff0000)
+      setHex(INTERSECTED, 0xc1c1c1)
     }
   } else {
-    if (INTERSECTED) setChildrenHex(INTERSECTED.parent.children, INTERSECTED.currentHex)
+    if (INTERSECTED) setHex(INTERSECTED, INTERSECTED.currentHex)
 
     INTERSECTED = null
   }
@@ -211,44 +249,45 @@ const render = () => {
   renderer.render(scene, camera)
 }
 
-const onClick = () => {
+const onClick = event => {
+  // Ignore side menu or toggle clicks
+  if (sideMenuItems.indexOf(event.target.id) !== -1) return
+
   // Ignore clicks if there is an animation in progress
   if (toDisplayAnimation && !toDisplayAnimation.completed) return
 
   // Display clicked objects details
   if (INTERSECTED) {
-    let parent = INTERSECTED.parent
+    let object = INTERSECTED
 
-    // TODO: fix this properly
-    // Account for models where the immediate parent is not the scene, temp solution is to assume the
-    // correct parent is only nested one level above
-    if (parent.parent.type !== 'Scene') parent = parent.parent
+    // Handle fan groups
+    if (object.parent.name.indexOf('Fan') !== -1) object = object.parent
 
-    title.innerHTML = defaultObjProps[parent.name].title
-    description.innerHTML = defaultObjProps[parent.name].description
+    title.innerHTML = objectProps[object.name].title
+    description.innerHTML = objectProps[object.name].description
 
     // If the object is in its default position, move it into display position
     // otherwise move it back to its default position
-    if (parent.position.x === defaultObjProps[parent.name].position.x &&
-        parent.position.y === defaultObjProps[parent.name].position.y &&
-        parent.position.z === defaultObjProps[parent.name].position.z) {
+    if (Number(object.position.x.toFixed(2)) === objectProps[object.name].position.x &&
+        Number(object.position.y.toFixed(2)) === objectProps[object.name].position.y &&
+        Number(object.position.z.toFixed(2)) === objectProps[object.name].position.z) {
       // If there is already something in display position, move it back
-      if (DISPLAY_POSITION) animateToPosition(DISPLAY_POSITION, false, defaultObjProps[DISPLAY_POSITION.name].position, defaultObjProps[DISPLAY_POSITION.name].rotation)
+      if (DISPLAY_POSITION) animateToPosition(DISPLAY_POSITION, false, objectProps[DISPLAY_POSITION.name].position, objectProps[DISPLAY_POSITION.name].rotation)
 
-      DISPLAY_POSITION = parent
+      DISPLAY_POSITION = object
       // Move to display position
-      animateToPosition(parent, true, displayPositionProps[parent.name].position, displayPositionProps[parent.name].rotation, displayPositionProps[parent.name].preRotation)
+      animateToPosition(object, true, objectProps[object.name].display.position, objectProps[object.name].display.rotation, objectProps[object.name].preRotation)
     } else {
       // If you click the object currently in display position, move it back to default position
       DISPLAY_POSITION = null
-      animateToPosition(parent, false, defaultObjProps[parent.name].position, defaultObjProps[parent.name].rotation)
+      animateToPosition(object, false, objectProps[object.name].position, objectProps[object.name].rotation)
       resetContent()
     }
   } else {
     resetContent()
     // If there are any models in display position, move them back
     if (DISPLAY_POSITION) {
-      animateToPosition(DISPLAY_POSITION, false, defaultObjProps[DISPLAY_POSITION.name].position, defaultObjProps[DISPLAY_POSITION.name].rotation)
+      animateToPosition(DISPLAY_POSITION, false, objectProps[DISPLAY_POSITION.name].position, objectProps[DISPLAY_POSITION.name].rotation)
       DISPLAY_POSITION = null
     }
   }
@@ -258,38 +297,40 @@ const animateToPosition = (target, loopRotation, position, rotation, preRotation
   toDisplayAnimation = Anime.timeline({
     targets: target.position,
     easing: 'easeOutSine',
-    duration: 500
+    duration: 800
   })
 
   // Coming out to display position
   if (loopRotation) {
-    toDisplayAnimation.add({ z: 180 }).add({ x: position.x, y: position.y }).add({ z: position.z })
-    // Perform any pre rotation rotation
+    toDisplayAnimation.add({ z: -1.5 }).add({ x: position.x, y: position.y }).add({ z: position.z })
+    // Perform any pre display rotation
     if (preRotation) {
-      preDisplayAnimation = Anime({
+      Anime({
         targets: target.rotation,
         x: preRotation.x,
         y: preRotation.y,
         z: preRotation.z,
         easing: 'linear',
-        duration: 500
+        duration: 800
       })
     }
     // Rotate object on y after reaching display position
     window.setTimeout(() => {
       onDisplayAnimation = Anime({
         targets: target.rotation,
+        x: rotation.x,
         y: rotation.y,
+        z: rotation.z,
         easing: 'linear',
         loop: true,
-        duration: 3000
+        duration: 5000
       })
-    }, 800)
+    }, 1800)
   }
   // Going back into case
   else {
-    toDisplayAnimation.add({ z: 180 }).add({ x: position.x, y: position.y }).add({ z: position.z })
-    // Pause on display animation and rotate back to default y position
+    toDisplayAnimation.add({ z: -1.5 }).add({ x: position.x, y: position.y }).add({ z: position.z })
+    // Pause on display animation and rotate back to default position
     if (onDisplayAnimation) onDisplayAnimation.pause()
     onDisplayAnimation = Anime({
       targets: target.rotation,
@@ -297,7 +338,7 @@ const animateToPosition = (target, loopRotation, position, rotation, preRotation
       x: rotation.x,
       z: rotation.z,
       easing: 'linear',
-      duration: 1000
+      duration: 800
     })
   }
 }
@@ -311,14 +352,21 @@ const onMouseMove = event => {
 }
 
 const resetContent = () => {
-  title.innerHTML = defaultObjProps['Default'].title
-  description.innerHTML = defaultObjProps['Default'].description
+  title.innerHTML = objectProps['Default'].title
+  description.innerHTML = objectProps['Default'].description
 }
 
-const setChildrenHex = (children, colour) => {
+const setHex = (object, colour) => {
   body.style = (colour === 0) ? 'cursor: default' : 'cursor: pointer'
-  for (let i = 0; i < children.length; i++) {
-    children[i].material.emissive.setHex(colour)
+  if (object.parent.name !== 'Case') {
+    object = object.parent
+    for (let i = 0; i < object.children.length; i++) {
+      object.children[i].material.emissiveIntensity = 0.5
+      object.children[i].material.emissive.setHex(colour)
+    }
+  } else {
+    object.material.emissiveIntensity = 0.5
+    object.material.emissive.setHex(colour)
   }
 }
 
@@ -328,9 +376,14 @@ const onWindowResize = () => {
   renderer.setSize(window.innerWidth, window.innerHeight)
 }
 
-const setPositionAndRotation = (object, props) => {
-  object.rotation.set(props.rotation.x, props.rotation.y, props.rotation.z)
-  object.position.set(props.position.x, props.position.y, props.position.z)
+const setPosition = (object, props) => {
+  object.position.set(props.x, props.y, props.z)
+}
+
+const addArrToGroup = (arr, group) => {
+  for (let i = 0; i < arr.length; i++) {
+    group.add(arr[i])
+  }
 }
 
 // Event listeners
