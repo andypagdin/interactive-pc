@@ -68,7 +68,7 @@ const objectProps = {
     position: { x: -0.02, y: 1.52, z: 0.72 },
     rotation: { x: -1.57, y: 0, z: -1.57 },
     display: {
-      position: { x: -5, y: -0.5, z: 0 },
+      position: { x: -5, y: 0, z: 0 },
       rotation: { x: 0, y: 6.28, z: -1.6 }
     },
     preRotation: { x: 0, y: 0, z: -1.6 }
@@ -92,25 +92,26 @@ let toDisplayAnimation
 let onDisplayAnimation
 
 // Renderer
-const renderer = new THREE.WebGLRenderer({ antialias: true, logarithmicDepthBuffer: true })
+const renderer = new THREE.WebGLRenderer({ antialias: true })
 renderer.setClearColor(0xecf0f1)
 renderer.setPixelRatio(window.devicePixelRatio)
 renderer.setSize(window.innerWidth, window.innerHeight)
 renderer.outputEncoding = THREE.sRGBEncoding
+renderer.toneMappingExposure = 1.0
 root.appendChild(renderer.domElement)
 
 // Camera
-const camera = new THREE.PerspectiveCamera(21, window.innerWidth / window.innerHeight, 1, 1000)
-const cameraPos = new THREE.Vector3(1, 0.1, 2)
+const fov = 30
+const camera = new THREE.PerspectiveCamera(fov, window.innerWidth / window.innerHeight, 1, 1000)
 scene.add(camera)
 
 // Lights
-const ambientLight = new THREE.AmbientLight(0xffffff, 0.4)
-scene.add(ambientLight);
+const ambient = new THREE.AmbientLight(0xffffff, 0.2)
+camera.add(ambient)
 
-const pointLight = new THREE.PointLight(0xffffff, 0.8)
-camera.add(pointLight)
-scene.add(camera)
+const directional = new THREE.DirectionalLight(0xffffff, 0.8)
+directional.position.set(0.5, 0, 0.866)
+camera.add(directional)
 
 const controls = new OrbitControls(camera, renderer.domElement)
 controls.enableDamping = true
@@ -181,29 +182,30 @@ loader.load(Case, gltf => {
   object.add(RearFanGroup)
   object.add(FrontBottomFanGroup)
 
-  // Reposition the camera and object into the center of the scene
-  object.updateMatrixWorld()
-  const boundingBox = new THREE.Box3().setFromObject(object)
-  const modelSizeVec3 = new THREE.Vector3()
-  boundingBox.getSize(modelSizeVec3)
-  const modelSize = modelSizeVec3.length()
-  const modelCenter = new THREE.Vector3()
-  boundingBox.getCenter(modelCenter)
+  const box = new THREE.Box3().setFromObject(object)
+  const size = box.getSize(new THREE.Vector3()).length()
+  const center = box.getCenter(new THREE.Vector3())
+
+  controls.reset()
 
   object.position.set(
-    -modelCenter.x - 2.3,
-    -modelCenter.y,
-    -modelCenter.z
+    object.position.x += (object.position.x - center.x) - 2.0,
+    object.position.y += (object.position.y - center.y),
+    object.position.z += (object.position.z - center.z)
   )
-  object.rotation.set(0, -3.1, 0)
-  camera.position.set(
-    modelSize * cameraPos.x,
-    modelSize * cameraPos.y,
-    modelSize * cameraPos.z
-  )
-  camera.near = modelSize / 100
-  camera.far = modelSize * 100
+  object.rotation.set(0, -3.4, 0)
+  controls.maxDistance = size * 10
+  camera.near = size / 100
+  camera.far = size * 100
   camera.updateProjectionMatrix()
+
+  camera.position.copy(center)
+  camera.position.set(
+    camera.position.x += 1,
+    camera.position.y += 0,
+    camera.position.z += size / 0.65
+  )
+  camera.lookAt(center)
 
   // Animate fan blades
   fanBladesAnimation = Anime({
@@ -260,8 +262,8 @@ const onClick = event => {
   if (INTERSECTED) {
     let object = INTERSECTED
 
-    // Handle fan groups
-    if (object.parent.name.indexOf('Fan') !== -1) object = object.parent
+    // Handle groups
+    if (object.parent.name.indexOf('Fan') !== -1 || object.parent.name.indexOf('Ram') !== -1) object = object.parent
 
     title.innerHTML = objectProps[object.name].title
     description.innerHTML = objectProps[object.name].description
