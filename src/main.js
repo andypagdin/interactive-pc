@@ -24,7 +24,7 @@ const objectProps = {
   RearFan: {
     title: 'Exhaust Fan',
     description: 'Fans are used to move air through the computer case. The components inside the case cannot dissipate heat efficiently if the surrounding air is too hot. <p> Commonly placed on the rear or top of the case, exhaust fans will expel the warm air.',
-    position: { x: 2.23, y: 1.49, z: -0.33 },
+    position: { x: 1.93, y: 1.49, z: -0.46 },
     rotation: { x: 0, y: 0, z: 0 },
     display: {
       position: { x: -5, y: 0, z: 0 },
@@ -34,7 +34,7 @@ const objectProps = {
   FrontTopFan: {
     title: 'Front Top Fan',
     description: 'front top fan',
-    position: { x: -1.81, y: 1.4, z: 0.02 },
+    position: { x: -2.11, y: 1.4, z: -0.10 },
     rotation: { x: 0, y: 0, z: 0 },
     display: {
       position: { x: -5, y: 0, z: 0 },
@@ -44,7 +44,7 @@ const objectProps = {
   FrontBottomFan: {
     title: 'Front Bottom Fan',
     description: 'front bottom fan',
-    position: { x: -1.81, y: 0.21, z: 0.02 },
+    position: { x: -2.11, y: 0.21, z: -0.10 },
     rotation: { x: 0, y: 0, z: 0 },
     display: {
       position: { x: -5, y: 0, z: 0 },
@@ -54,7 +54,7 @@ const objectProps = {
   GraphicsCard: {
     title: 'Graphics Card',
     description: 'graphics card',
-    position: { x: 0.94, y: 0.56, z: 0.45 },
+    position: { x: 0.78, y: 0.44, z: 0.19 },
     rotation: { x: 0, y: 0, z: 0 },
     display: {
       position: { x: -5, y: 0, z: 0 },
@@ -65,7 +65,7 @@ const objectProps = {
   Ram: {
     title: 'Random-Access Memory',
     description: 'A form of computer memory that can be read and changed in any order, typically used to store working data and machine code. <p> A random-access memory device allows data items to be read or written in almost the same amount of time irrespective of the physical location of data inside the memory.',
-    position: { x: -0.02, y: 1.52, z: 0.72 },
+    position: { x: -0.13, y: 1.53, z: 0.75 },
     rotation: { x: -1.57, y: 0, z: -1.57 },
     display: {
       position: { x: -5, y: 0, z: 0 },
@@ -106,7 +106,7 @@ const camera = new THREE.PerspectiveCamera(fov, window.innerWidth / window.inner
 scene.add(camera)
 
 // Lights
-const ambient = new THREE.AmbientLight(0xffffff, 0.2)
+const ambient = new THREE.AmbientLight(0xffffff, 0.5)
 camera.add(ambient)
 
 const directional = new THREE.DirectionalLight(0xffffff, 0.8)
@@ -263,7 +263,7 @@ const onClick = event => {
     let object = INTERSECTED
 
     // Handle groups
-    if (object.parent.name.indexOf('Fan') !== -1 || object.parent.name.indexOf('Ram') !== -1) object = object.parent
+    if (object.parent.name.indexOf('Fan') !== -1 || object.parent.name.indexOf('Ram') !== -1 || object.parent.name.indexOf('GraphicsCard') !== -1) object = object.parent
 
     title.innerHTML = objectProps[object.name].title
     description.innerHTML = objectProps[object.name].description
@@ -304,7 +304,7 @@ const animateToPosition = (target, loopRotation, position, rotation, preRotation
 
   // Coming out to display position
   if (loopRotation) {
-    toDisplayAnimation.add({ z: -1.5 }).add({ x: position.x, y: position.y }).add({ z: position.z })
+    toDisplayAnimation.add({ z: -2 }).add({ x: position.x, y: position.y }).add({ z: position.z })
     // Perform any pre display rotation
     if (preRotation) {
       Anime({
@@ -331,7 +331,7 @@ const animateToPosition = (target, loopRotation, position, rotation, preRotation
   }
   // Going back into case
   else {
-    toDisplayAnimation.add({ z: -1.5 }).add({ x: position.x, y: position.y }).add({ z: position.z })
+    toDisplayAnimation.add({ z: -2 }).add({ x: position.x, y: position.y }).add({ z: position.z })
     // Pause on display animation and rotate back to default position
     if (onDisplayAnimation) onDisplayAnimation.pause()
     onDisplayAnimation = Anime({
