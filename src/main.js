@@ -11,7 +11,7 @@ let DISPLAY_POSITION
 
 const interactableObjNames = [
   'RearFanBlades', 'RearFanCase', 'FrontTopFanBlades', 'FrontTopFanCase', 'FrontBottomFanBlades',
-  'FrontBottomFanCase', 'GraphicsCard', 'Ram'
+  'FrontBottomFanCase', 'GraphicsCard', 'Ram', 'CpuChip'
 ]
 
 const sideMenuItems = ['controls', 'toggle-fans']
@@ -73,6 +73,16 @@ const objectProps = {
     },
     preRotation: { x: 0, y: 0, z: -1.6 }
   },
+  CpuChip: {
+    title: 'Central Processing Unit',
+    description: 'A CPU, also called a central processor or main processor, is the electronic circuitry within a computer that executes instructions that make up a computer program. <p> The CPU performs basic arithmetic, logic, controlling, and input/output operations specified by the instructions in the program.',
+    position: { x: 0.62, y: 1.45, z: 0.74 },
+    rotation: { x: 1.57, y: 0, z: 0 },
+    display: {
+      position: { x: -5, y: 0, z: 0 },
+      rotation: { x: 1.57, y: 0, z: 6.3 }
+    }
+  }
 }
 
 // Elements
@@ -263,7 +273,12 @@ const onClick = event => {
     let object = INTERSECTED
 
     // Handle groups
-    if (object.parent.name.indexOf('Fan') !== -1 || object.parent.name.indexOf('Ram') !== -1 || object.parent.name.indexOf('GraphicsCard') !== -1) object = object.parent
+    if (object.parent.name.indexOf('Fan') !== -1 ||
+        object.parent.name.indexOf('Ram') !== -1 ||
+        object.parent.name.indexOf('CpuChip') !== -1 ||
+        object.parent.name.indexOf('GraphicsCard') !== -1) {
+      object = object.parent
+    }
 
     title.innerHTML = objectProps[object.name].title
     description.innerHTML = objectProps[object.name].description
