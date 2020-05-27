@@ -213,7 +213,7 @@ loader.load(Case, gltf => {
   camera.position.set(
     camera.position.x += 1,
     camera.position.y += 0,
-    camera.position.z += size / 0.65
+    camera.position.z += size / 0.62
   )
   camera.lookAt(center)
 
