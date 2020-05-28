@@ -81,6 +81,8 @@ loader.load(Case, gltf => {
 
   // Loop through all children and add interactable objects
   for (let i = 0; i < object.children.length; i++) {
+    if (object.children[i].name === 'Case') object.children[i].children[3].material.opacity = 0.6
+
     if (interactableObjNames.indexOf(object.children[i].name) !== -1) {
       let child = object.children[i]
       if (child.name.indexOf('FrontTop') !== -1) {
