@@ -11,7 +11,7 @@ let DISPLAY_POSITION
 
 const interactableObjNames = [
   'RearFanBlades', 'RearFanCase', 'FrontTopFanBlades', 'FrontTopFanCase', 'FrontBottomFanBlades',
-  'FrontBottomFanCase', 'GraphicsCard', 'Ram', 'CpuChip'
+  'FrontBottomFanCase', 'GraphicsCard', 'Ram', 'CpuChip', 'PowerSupply'
 ]
 
 const sideMenuItems = ['controls', 'toggle-fans']
@@ -81,6 +81,16 @@ const objectProps = {
     display: {
       position: { x: -5, y: 0, z: 0 },
       rotation: { x: 1.57, y: 0, z: 6.3 }
+    }
+  },
+  PowerSupply: {
+    title: 'Power Supply',
+    description: 'A power supply unit converts mains AC to low-voltage regulated DC power for the internal components of a computer. Modern personal computers universally use switched-mode power supplies. <p> Some power supplies have a manual switch for selecting input voltage, while others automatically adapt to the mains voltage.',
+    position: { x: 1.31, y: -1.19, z: -0.12 },
+    rotation: { x: 0, y: 0, z: -1.57 },
+    display: {
+      position: { x: -5, y: 0, z: 0 },
+      rotation: { x: 0, y: 6.3, z: -1.57 }
     }
   }
 }
@@ -272,10 +282,11 @@ const onClick = event => {
   if (INTERSECTED) {
     let object = INTERSECTED
 
-    // Handle groups
+    // Handle groups (eventually all interactable objects will be groups, then this can be removed)
     if (object.parent.name.indexOf('Fan') !== -1 ||
         object.parent.name.indexOf('Ram') !== -1 ||
         object.parent.name.indexOf('CpuChip') !== -1 ||
+        object.parent.name.indexOf('PowerSupply') !== -1 ||
         object.parent.name.indexOf('GraphicsCard') !== -1) {
       object = object.parent
     }
