@@ -20,7 +20,7 @@ export const objectProps = {
   FrontTopFan: {
     title: 'Front Top Fan',
     description: 'front top fan',
-    position: { x: -2.11, y: 1.4, z: -0.10 },
+    position: { x: -2.16, y: 1.22, z: -0.10 },
     rotation: { x: 0, y: 0, z: 0 },
     display: {
       position: { x: -5, y: 0, z: 0 },
@@ -30,7 +30,7 @@ export const objectProps = {
   FrontBottomFan: {
     title: 'Front Bottom Fan',
     description: 'front bottom fan',
-    position: { x: -2.11, y: 0.21, z: -0.10 },
+    position: { x: -2.16, y: 0, z: -0.10 },
     rotation: { x: 0, y: 0, z: 0 },
     display: {
       position: { x: -5, y: 0, z: 0 },

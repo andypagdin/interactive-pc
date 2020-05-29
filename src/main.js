@@ -28,11 +28,11 @@ let onDisplayAnimation
 
 // Renderer
 const renderer = new THREE.WebGLRenderer({ antialias: true })
-renderer.setClearColor(0xecf0f1)
+renderer.setClearColor(0xcccccc)
 renderer.setPixelRatio(window.devicePixelRatio)
 renderer.setSize(window.innerWidth, window.innerHeight)
 renderer.outputEncoding = THREE.sRGBEncoding
-renderer.toneMappingExposure = 1.0
+renderer.physicallyCorrectLights = true
 root.appendChild(renderer.domElement)
 
 // Camera
@@ -41,17 +41,17 @@ const camera = new THREE.PerspectiveCamera(fov, window.innerWidth / window.inner
 scene.add(camera)
 
 // Lights
-const ambient = new THREE.AmbientLight(0xffffff, 0.5)
+const ambient = new THREE.AmbientLight(0xffffff, 0.3)
 camera.add(ambient)
 
-const directional = new THREE.DirectionalLight(0xffffff, 0.8)
+const directional = new THREE.DirectionalLight(0xffffff, 2.5)
 directional.position.set(0.5, 0, 0.866)
 camera.add(directional)
 
 const controls = new OrbitControls(camera, renderer.domElement)
 controls.enableDamping = true
 controls.dampingFactor = 0.07
-controls.rotateSpeed = 0.2
+controls.rotateSpeed = 0.7
 controls.panSpeed = 0.2
 controls.update()
 
@@ -81,8 +81,6 @@ loader.load(Case, gltf => {
 
   // Loop through all children and add interactable objects
   for (let i = 0; i < object.children.length; i++) {
-    if (object.children[i].name === 'Case') object.children[i].children[3].material.opacity = 0.6
-
     if (interactableObjNames.indexOf(object.children[i].name) !== -1) {
       let child = object.children[i]
       if (child.name.indexOf('FrontTop') !== -1) {
