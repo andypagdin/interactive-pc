@@ -4,6 +4,7 @@ import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls'
 import Case from '../assets/models/case-v2.glb'
 import Anime from 'animejs'
 import { objectProps, interactableObjNames, sideMenuItems } from './object-props'
+import { createBackground } from '../lib/three-vignette.js'
 
 const scene = new THREE.Scene()
 const interactableObjects = []
@@ -54,6 +55,14 @@ controls.dampingFactor = 0.07
 controls.rotateSpeed = 0.7
 controls.panSpeed = 0.2
 controls.update()
+
+const vignette = createBackground({
+  aspect: camera.aspect,
+  grainScale: 0.001,
+  colors: ['#ffffff', '#353535']
+})
+vignette.name = 'Vignette'
+scene.add(vignette)
 
 const loader = new GLTFLoader()
 
@@ -138,7 +147,7 @@ loader.load(Case, gltf => {
   camera.position.set(
     camera.position.x += 1,
     camera.position.y += 0,
-    camera.position.z += size / 0.62
+    camera.position.z += size / 0.57
   )
   camera.lookAt(center)
 
@@ -317,6 +326,7 @@ const onWindowResize = () => {
   camera.aspect = window.innerWidth / window.innerHeight
   camera.updateProjectionMatrix()
   renderer.setSize(window.innerWidth, window.innerHeight)
+  vignette.style({ aspect: camera.aspect })
 }
 
 const setPosition = (object, props) => {
