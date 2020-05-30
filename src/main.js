@@ -1,6 +1,5 @@
 import * as THREE from 'three'
 import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader'
-import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls'
 import Case from '../assets/models/case-v2.glb'
 import Anime from 'animejs'
 import { objectProps, interactableObjNames, sideMenuItems } from './object-props'
@@ -49,13 +48,12 @@ const directional = new THREE.DirectionalLight(0xffffff, 2.5)
 directional.position.set(0.5, 0, 0.866)
 camera.add(directional)
 
-const controls = new OrbitControls(camera, renderer.domElement)
-controls.enableDamping = true
-controls.dampingFactor = 0.07
-controls.rotateSpeed = 0.7
-controls.panSpeed = 0.2
-controls.update()
+// Mouse
+let mouseDown = false
+let mouseX = 0
+let mouseY = 0
 
+// Vignette
 const vignette = createBackground({
   aspect: camera.aspect,
   grainScale: 0.001,
@@ -65,6 +63,7 @@ vignette.name = 'Vignette'
 scene.add(vignette)
 
 const loader = new GLTFLoader()
+let caseObj = null
 
 // Load Case
 loader.load(Case, gltf => {
@@ -130,15 +129,12 @@ loader.load(Case, gltf => {
   const size = box.getSize(new THREE.Vector3()).length()
   const center = box.getCenter(new THREE.Vector3())
 
-  controls.reset()
-
   object.position.set(
     object.position.x += (object.position.x - center.x) - 2.0,
-    object.position.y += (object.position.y - center.y),
+    object.position.y += (object.position.y - center.y) + 0.2,
     object.position.z += (object.position.z - center.z)
   )
-  object.rotation.set(0, -3.4, 0)
-  controls.maxDistance = size * 10
+  object.rotation.y = -3.4
   camera.near = size / 100
   camera.far = size * 100
   camera.updateProjectionMatrix()
@@ -161,6 +157,7 @@ loader.load(Case, gltf => {
   })
   fanBladesAnimation.pause()
 
+  caseObj = object
   scene.add(object)
 }, undefined, error => {
   console.error(error)
@@ -191,7 +188,6 @@ const render = () => {
     INTERSECTED = null
   }
 
-  controls.update()
   renderer.render(scene, camera)
 }
 
@@ -298,11 +294,6 @@ const animateToPosition = (target, loopRotation, position, rotation, preRotation
 // Helper methods
 const toggleFans = () => fanBladesAnimation.paused ? fanBladesAnimation.play() : fanBladesAnimation.pause()
 
-const onMouseMove = event => {
-  mouse.x = (event.clientX / window.innerWidth) * 2 - 1
-  mouse.y = - (event.clientY / window.innerHeight) * 2 + 1
-}
-
 const resetContent = () => {
   title.innerHTML = objectProps['Default'].title
   description.innerHTML = objectProps['Default'].description
@@ -339,10 +330,49 @@ const addArrToGroup = (arr, group) => {
   }
 }
 
+const rotateObject = (deltaX, deltaY) => {
+  caseObj.rotation.y += deltaX / 700
+  caseObj.rotation.x += deltaY / 700
+}
+
+const onMouseMove = e => {
+  mouse.x = (event.clientX / window.innerWidth) * 2 - 1
+  mouse.y = - (event.clientY / window.innerHeight) * 2 + 1
+
+  if (!mouseDown) return
+
+  e.preventDefault()
+
+  let deltaX = e.clientX - mouseX
+  let deltaY = e.clientY - mouseY
+
+  mouseX = e.clientX
+  mouseY = e.clientY
+
+  rotateObject(deltaX, deltaY)
+}
+
+const onMouseDown = e => {
+  e.preventDefault()
+
+  mouseDown = true
+  mouseX = e.clientX
+  mouseY = e.clientY
+}
+
+const onMouseUp = e => {
+  e.preventDefault()
+
+  mouseDown = false
+}
+
+
 // Event listeners
 toggleFanBtn.addEventListener('click', toggleFans, false)
-window.addEventListener('mousemove', onMouseMove, false)
 window.addEventListener('click', onClick, false)
 window.addEventListener('resize', onWindowResize, false)
+window.addEventListener('mousemove', onMouseMove, false)
+window.addEventListener('mousedown', onMouseDown, false)
+window.addEventListener('mouseup', onMouseUp, false)
 
 animate()
