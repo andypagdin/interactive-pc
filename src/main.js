@@ -66,7 +66,8 @@ const loader = new GLTFLoader()
 let caseObj = null
 
 const displayGroup = new THREE.Group()
-displayGroup.position.set(2.5, 0 , 0)
+displayGroup.position.set(2.5, 0, 0)
+displayGroup.rotation.y = -3.4
 scene.add(displayGroup)
 
 // Load Case
@@ -230,13 +231,30 @@ const moveToPosition = object => {
 
   // move the object to the display position
   if (beingDisplayed) {
-    // Remove the object being displayed from the case parent object
-    // add it into the display group, so it is no longer affected by the case rotation
-    displayGroup.add(object)
-    object.position.set(0, 0, 0)
+    displayGroup.attach(object)
 
-    // apply any pre rotation
-    if (props.preRotation) object.rotation.set(props.preRotation.x, props.preRotation.y, props.preRotation.z)
+    const preRotationX = (props.preRotation && props.preRotation.x) ? THREE.Math.degToRad(props.preRotation.x) : 0
+    const preRotationY = (props.preRotation && props.preRotation.y) ? THREE.Math.degToRad(props.preRotation.y) : 0
+    const preRotationZ = (props.preRotation && props.preRotation.z) ? THREE.Math.degToRad(props.preRotation.z) : 0
+
+    // Apply any pre-rotations
+    Anime({
+      targets: object.rotation,
+      x: preRotationX,
+      y: preRotationY,
+      z: preRotationZ,
+      duration: 1000,
+      easing: 'easeOutSine'
+    })
+
+    // Move to display position
+    toDisplayAnimation = Anime.timeline({
+      targets: object.position,
+      easing: 'easeOutSine',
+      duration: 1000
+    })
+      .add({ x: 0, y: 0 })
+      .add({ z: 0 })
 
     // rotate object in display position
     let animation = {
@@ -250,13 +268,32 @@ const moveToPosition = object => {
     }
     const rotationAxis = props.displayRotationAxis ? props.displayRotationAxis : 'y'
     animation[rotationAxis] = THREE.Math.degToRad(360)
-    onDisplayAnimation = Anime(animation)
+    setTimeout(() => {
+      onDisplayAnimation = Anime(animation)
+    }, 1200)
   // Remove object from display group and add it back into case group
   } else {
+    caseObj.attach(object)
     onDisplayAnimation.pause()
-    object.rotation.set(props.rotation.x, props.rotation.y, props.rotation.z)
-    object.position.set(props.position.x, props.position.y, props.position.z)
-    caseObj.add(object)
+
+    // Rotate back to original rotation
+    Anime({
+      targets: object.rotation,
+      x: 0,
+      y: 0,
+      z: 0,
+      duration: 1000,
+      easing: 'easeOutSine'
+    })
+
+    // Move back to original position
+    toDisplayAnimation = Anime.timeline({
+      targets: object.position,
+      easing: 'easeOutSine',
+      duration: 1000
+    })
+      .add({ z: props.position.z })
+      .add({ x: props.position.x, y: props.position.y })
   }
 }
 
