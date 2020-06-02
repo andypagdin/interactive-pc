@@ -65,6 +65,16 @@ scene.add(vignette)
 const loader = new GLTFLoader()
 let caseObj = null
 
+const displayGroup = new THREE.Group()
+displayGroup.position.set(2.5, 0 , 0)
+// Add dummy cube to see display group position
+let geometry = new THREE.BoxGeometry()
+let material = new THREE.MeshBasicMaterial({ color: 0x00ff00 })
+let cube = new THREE.Mesh(geometry, material)
+cube.name = 'lol'
+// displayGroup.add(cube)
+scene.add(displayGroup)
+
 // Load Case
 loader.load(Case, gltf => {
   let object = gltf.scene
@@ -135,9 +145,9 @@ loader.load(Case, gltf => {
     object.position.z += (object.position.z - center.z)
   )
   object.rotation.y = -3.4
-  camera.near = size / 100
-  camera.far = size * 100
-  camera.updateProjectionMatrix()
+  // camera.near = size / 100
+  // camera.far = size * 100
+  // camera.updateProjectionMatrix()
 
   camera.position.copy(center)
   camera.position.set(
@@ -157,8 +167,16 @@ loader.load(Case, gltf => {
   })
   fanBladesAnimation.pause()
 
+  // let cgeometry = new THREE.BoxGeometry()
+  // let cmaterial = new THREE.MeshBasicMaterial({ color: 0x000 })
+  // let ccube = new THREE.Mesh(cgeometry, cmaterial)
+  // ccube.position.set(-5, 0, 0)
+  // object.add(ccube)
+
   caseObj = object
-  scene.add(object)
+  // displayGroup.position.set(caseObj.position.x + 2, caseObj.position.y, caseObj.position.z)
+  // displayGroup.quaternion.set(caseObj.quaternion.x, caseObj.quaternion.y, caseObj.quaternion.z, caseObj.quaternion.w)
+  scene.add(caseObj)
 }, undefined, error => {
   console.error(error)
 })
@@ -192,6 +210,8 @@ const render = () => {
 }
 
 const onClick = event => {
+  console.log(mouseX, mouseY)
+  console.log(event)
   // Ignore side menu or toggle clicks
   if (sideMenuItems.indexOf(event.target.id) !== -1) return
 
@@ -224,7 +244,8 @@ const onClick = event => {
 
       DISPLAY_POSITION = object
       // Move to display position
-      animateToPosition(object, true, objectProps[object.name].display.position, objectProps[object.name].display.rotation, objectProps[object.name].preRotation)
+      // animateToPosition(object, true, objectProps[object.name].display.position, objectProps[object.name].display.rotation, objectProps[object.name].preRotation)
+      moveToPosition(object, true)
     } else {
       // If you click the object currently in display position, move it back to default position
       DISPLAY_POSITION = null
@@ -235,10 +256,47 @@ const onClick = event => {
     resetContent()
     // If there are any models in display position, move them back
     if (DISPLAY_POSITION) {
-      animateToPosition(DISPLAY_POSITION, false, objectProps[DISPLAY_POSITION.name].position, objectProps[DISPLAY_POSITION.name].rotation)
+      // animateToPosition(DISPLAY_POSITION, false, objectProps[DISPLAY_POSITION.name].position, objectProps[DISPLAY_POSITION.name].rotation)
+      moveToPosition(DISPLAY_POSITION, false)
       DISPLAY_POSITION = null
     }
   }
+}
+
+function setOpacity(obj, opacity) {
+  console.log(obj)
+  obj.children.forEach((child) => {
+    setOpacity(child, opacity);
+  })
+  if (obj.material) {
+    obj.material.transparent = true
+    obj.material.opacity = opacity;
+  }
+}
+
+const moveToPosition = (object, beingDisplayed) => {
+  console.log(object)
+  setOpacity(object, 0.5)
+
+  // move the object to the display position
+  // if (beingDisplayed) {
+  //   for (let i = 0; i < caseObj.children.length; i++) {
+  //     if (caseObj.children[i].name === object.name) {
+  //       displayGroup.add(caseObj.children[i])
+  //       object.position.set(0, 0, 0)
+
+  //       // animate object from to the
+  //     }
+  //   }
+  // } else {
+  //   console.log('adding back to case object')
+  //   caseObj.add(object)
+  //   object.position.set(
+  //     objectProps[object.name].position.x,
+  //     objectProps[object.name].position.y,
+  //     objectProps[object.name].position.z,
+  //   )
+  // }
 }
 
 const animateToPosition = (target, loopRotation, position, rotation, preRotation = null) => {
