@@ -232,30 +232,25 @@ const moveToPosition = object => {
   if (beingDisplayed) {
     // Remove the object being displayed from the case parent object
     // add it into the display group, so it is no longer affected by the case rotation
-    for (let i = 0; i < caseObj.children.length; i++) {
-      if (caseObj.children[i].name === object.name) {
-        displayGroup.add(caseObj.children[i])
-        object.position.set(0, 0, 0)
+    displayGroup.add(object)
+    object.position.set(0, 0, 0)
 
-        // apply any pre rotation
-        if (props.preRotation) object.rotation.set(props.preRotation.x, props.preRotation.y, props.preRotation.z)
+    // apply any pre rotation
+    if (props.preRotation) object.rotation.set(props.preRotation.x, props.preRotation.y, props.preRotation.z)
 
-        // rotate object in display position
-        let animation = {
-          targets: object.rotation,
-          x: undefined,
-          y: undefined,
-          z: undefined,
-          easing: 'linear',
-          loop: true,
-          duration: 5000
-        }
-        const rotationAxis = props.displayRotationAxis ? props.displayRotationAxis : 'y'
-        animation[rotationAxis] = THREE.Math.degToRad(360)
-        onDisplayAnimation = Anime(animation)
-        return
-      }
+    // rotate object in display position
+    let animation = {
+      targets: object.rotation,
+      x: undefined,
+      y: undefined,
+      z: undefined,
+      easing: 'linear',
+      loop: true,
+      duration: 5000
     }
+    const rotationAxis = props.displayRotationAxis ? props.displayRotationAxis : 'y'
+    animation[rotationAxis] = THREE.Math.degToRad(360)
+    onDisplayAnimation = Anime(animation)
   // Remove object from display group and add it back into case group
   } else {
     onDisplayAnimation.pause()
