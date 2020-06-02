@@ -241,15 +241,18 @@ const moveToPosition = object => {
         if (props.preRotation) object.rotation.set(props.preRotation.x, props.preRotation.y, props.preRotation.z)
 
         // rotate object in display position
-        onDisplayAnimation = Anime({
+        let animation = {
           targets: object.rotation,
-          x: props.display.rotation.x,
-          y: props.display.rotation.y,
-          z: props.display.rotation.z,
+          x: undefined,
+          y: undefined,
+          z: undefined,
           easing: 'linear',
           loop: true,
           duration: 5000
-        })
+        }
+        const rotationAxis = props.displayRotationAxis ? props.displayRotationAxis : 'y'
+        animation[rotationAxis] = THREE.Math.degToRad(360)
+        onDisplayAnimation = Anime(animation)
         return
       }
     }
