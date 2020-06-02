@@ -67,12 +67,6 @@ let caseObj = null
 
 const displayGroup = new THREE.Group()
 displayGroup.position.set(2.5, 0 , 0)
-// Add dummy cube to see display group position
-let geometry = new THREE.BoxGeometry()
-let material = new THREE.MeshBasicMaterial({ color: 0x00ff00 })
-let cube = new THREE.Mesh(geometry, material)
-cube.name = 'lol'
-// displayGroup.add(cube)
 scene.add(displayGroup)
 
 // Load Case
@@ -145,9 +139,6 @@ loader.load(Case, gltf => {
     object.position.z += (object.position.z - center.z)
   )
   object.rotation.y = -3.4
-  // camera.near = size / 100
-  // camera.far = size * 100
-  // camera.updateProjectionMatrix()
 
   camera.position.copy(center)
   camera.position.set(
@@ -167,15 +158,7 @@ loader.load(Case, gltf => {
   })
   fanBladesAnimation.pause()
 
-  // let cgeometry = new THREE.BoxGeometry()
-  // let cmaterial = new THREE.MeshBasicMaterial({ color: 0x000 })
-  // let ccube = new THREE.Mesh(cgeometry, cmaterial)
-  // ccube.position.set(-5, 0, 0)
-  // object.add(ccube)
-
   caseObj = object
-  // displayGroup.position.set(caseObj.position.x + 2, caseObj.position.y, caseObj.position.z)
-  // displayGroup.quaternion.set(caseObj.quaternion.x, caseObj.quaternion.y, caseObj.quaternion.z, caseObj.quaternion.w)
   scene.add(caseObj)
 }, undefined, error => {
   console.error(error)
@@ -210,26 +193,14 @@ const render = () => {
 }
 
 const onClick = event => {
-  console.log(mouseX, mouseY)
-  console.log(event)
   // Ignore side menu or toggle clicks
   if (sideMenuItems.indexOf(event.target.id) !== -1) return
 
   // Ignore clicks if there is an animation in progress
   if (toDisplayAnimation && !toDisplayAnimation.completed) return
 
-  // Display clicked objects details
   if (INTERSECTED) {
-    let object = INTERSECTED
-
-    // Handle groups (eventually all interactable objects will be groups, then this can be removed)
-    if (object.parent.name.indexOf('Fan') !== -1 ||
-        object.parent.name.indexOf('Ram') !== -1 ||
-        object.parent.name.indexOf('CpuChip') !== -1 ||
-        object.parent.name.indexOf('PowerSupply') !== -1 ||
-        object.parent.name.indexOf('GraphicsCard') !== -1) {
-      object = object.parent
-    }
+    let object = INTERSECTED.parent
 
     title.innerHTML = objectProps[object.name].title
     description.innerHTML = objectProps[object.name].description
@@ -240,112 +211,54 @@ const onClick = event => {
         Number(object.position.y.toFixed(2)) === objectProps[object.name].position.y &&
         Number(object.position.z.toFixed(2)) === objectProps[object.name].position.z) {
       // If there is already something in display position, move it back
-      if (DISPLAY_POSITION) animateToPosition(DISPLAY_POSITION, false, objectProps[DISPLAY_POSITION.name].position, objectProps[DISPLAY_POSITION.name].rotation)
+      if (DISPLAY_POSITION) moveToPosition(DISPLAY_POSITION)
 
-      DISPLAY_POSITION = object
       // Move to display position
-      // animateToPosition(object, true, objectProps[object.name].display.position, objectProps[object.name].display.rotation, objectProps[object.name].preRotation)
-      moveToPosition(object, true)
+      DISPLAY_POSITION = object
     } else {
       // If you click the object currently in display position, move it back to default position
       DISPLAY_POSITION = null
-      animateToPosition(object, false, objectProps[object.name].position, objectProps[object.name].rotation)
       resetContent()
     }
-  } else {
-    resetContent()
-    // If there are any models in display position, move them back
-    if (DISPLAY_POSITION) {
-      // animateToPosition(DISPLAY_POSITION, false, objectProps[DISPLAY_POSITION.name].position, objectProps[DISPLAY_POSITION.name].rotation)
-      moveToPosition(DISPLAY_POSITION, false)
-      DISPLAY_POSITION = null
-    }
+    moveToPosition(object)
   }
 }
 
-function setOpacity(obj, opacity) {
-  console.log(obj)
-  obj.children.forEach((child) => {
-    setOpacity(child, opacity);
-  })
-  if (obj.material) {
-    obj.material.transparent = true
-    obj.material.opacity = opacity;
-  }
-}
-
-const moveToPosition = (object, beingDisplayed) => {
-  console.log(object)
-  setOpacity(object, 0.5)
+const moveToPosition = object => {
+  const props = objectProps[object.name]
+  const beingDisplayed = object.parent.name === 'Case'
 
   // move the object to the display position
-  // if (beingDisplayed) {
-  //   for (let i = 0; i < caseObj.children.length; i++) {
-  //     if (caseObj.children[i].name === object.name) {
-  //       displayGroup.add(caseObj.children[i])
-  //       object.position.set(0, 0, 0)
+  if (beingDisplayed) {
+    // Remove the object being displayed from the case parent object
+    // add it into the display group, so it is no longer affected by the case rotation
+    for (let i = 0; i < caseObj.children.length; i++) {
+      if (caseObj.children[i].name === object.name) {
+        displayGroup.add(caseObj.children[i])
+        object.position.set(0, 0, 0)
 
-  //       // animate object from to the
-  //     }
-  //   }
-  // } else {
-  //   console.log('adding back to case object')
-  //   caseObj.add(object)
-  //   object.position.set(
-  //     objectProps[object.name].position.x,
-  //     objectProps[object.name].position.y,
-  //     objectProps[object.name].position.z,
-  //   )
-  // }
-}
+        // apply any pre rotation
+        if (props.preRotation) object.rotation.set(props.preRotation.x, props.preRotation.y, props.preRotation.z)
 
-const animateToPosition = (target, loopRotation, position, rotation, preRotation = null) => {
-  toDisplayAnimation = Anime.timeline({
-    targets: target.position,
-    easing: 'easeOutSine',
-    duration: 800
-  })
-
-  // Coming out to display position
-  if (loopRotation) {
-    toDisplayAnimation.add({ z: -2 }).add({ x: position.x, y: position.y }).add({ z: position.z })
-    // Perform any pre display rotation
-    if (preRotation) {
-      Anime({
-        targets: target.rotation,
-        x: preRotation.x,
-        y: preRotation.y,
-        z: preRotation.z,
-        easing: 'linear',
-        duration: 800
-      })
+        // rotate object in display position
+        onDisplayAnimation = Anime({
+          targets: object.rotation,
+          x: props.display.rotation.x,
+          y: props.display.rotation.y,
+          z: props.display.rotation.z,
+          easing: 'linear',
+          loop: true,
+          duration: 5000
+        })
+        return
+      }
     }
-    // Rotate object after reaching display position
-    window.setTimeout(() => {
-      onDisplayAnimation = Anime({
-        targets: target.rotation,
-        x: rotation.x,
-        y: rotation.y,
-        z: rotation.z,
-        easing: 'linear',
-        loop: true,
-        duration: 5000
-      })
-    }, 1800)
-  }
-  // Going back into case
-  else {
-    toDisplayAnimation.add({ z: -2 }).add({ x: position.x, y: position.y }).add({ z: position.z })
-    // Pause on display animation and rotate back to default position
-    if (onDisplayAnimation) onDisplayAnimation.pause()
-    onDisplayAnimation = Anime({
-      targets: target.rotation,
-      y: rotation.y,
-      x: rotation.x,
-      z: rotation.z,
-      easing: 'linear',
-      duration: 800
-    })
+  // Remove object from display group and add it back into case group
+  } else {
+    onDisplayAnimation.pause()
+    object.rotation.set(props.rotation.x, props.rotation.y, props.rotation.z)
+    object.position.set(props.position.x, props.position.y, props.position.z)
+    caseObj.add(object)
   }
 }
 
@@ -423,7 +336,6 @@ const onMouseUp = e => {
 
   mouseDown = false
 }
-
 
 // Event listeners
 toggleFanBtn.addEventListener('click', toggleFans, false)
