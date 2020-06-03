@@ -27,6 +27,7 @@ const mouse = new THREE.Vector2()
 let fanBladesAnimation
 let toDisplayAnimation
 let onDisplayAnimation
+let midwayAnimation
 
 // Renderer
 const renderer = new THREE.WebGLRenderer({ antialias: true })
@@ -71,8 +72,10 @@ scene.add(displayGroup)
 
 // Midway Group - Acts as a waypoint for objects coming in and out of the case to make sure they lift out of the case
 // before moving to and from the display position
-const midwayGroup = new THREE.Group()
-midwayGroup.position.set(0, 0.5, -2)
+const midwayGroupOut = new THREE.Group()
+midwayGroupOut.position.set(0, 1.1, -2)
+const midwayGroupIn = new THREE.Group()
+midwayGroupIn.position.set(0, -0.4, -2)
 
 // Load Case
 loader.load(Case, gltf => {
@@ -133,7 +136,8 @@ loader.load(Case, gltf => {
   object.add(FrontTopFanGroup)
   object.add(RearFanGroup)
   object.add(FrontBottomFanGroup)
-  object.add(midwayGroup)
+  object.add(midwayGroupIn)
+  object.add(midwayGroupOut)
 
   const box = new THREE.Box3().setFromObject(object)
   const size = box.getSize(new THREE.Vector3()).length()
@@ -203,7 +207,10 @@ const onClick = event => {
   if (sideMenuItems.indexOf(event.target.id) !== -1) return
 
   // Ignore clicks if there is an animation in progress
-  if (toDisplayAnimation && !toDisplayAnimation.completed) return
+  if (toDisplayAnimation && !toDisplayAnimation.completed ||
+      midwayAnimation && !midwayAnimation.completed) {
+    return
+  }
 
   if (INTERSECTED) {
     let object = INTERSECTED.parent
@@ -217,7 +224,7 @@ const onClick = event => {
         Number(object.position.y.toFixed(2)) === objectProps[object.name].position.y &&
         Number(object.position.z.toFixed(2)) === objectProps[object.name].position.z) {
       // If there is already something in display position, move it back
-      if (DISPLAY_POSITION) moveToPosition(DISPLAY_POSITION)
+      if (DISPLAY_POSITION) moveToMidway(DISPLAY_POSITION)
 
       // Move to display position
       DISPLAY_POSITION = object
@@ -226,7 +233,7 @@ const onClick = event => {
       DISPLAY_POSITION = null
       resetContent()
     }
-    moveToPosition(object)
+    moveToMidway(object)
   }
 }
 
@@ -240,9 +247,8 @@ const moveToDisplay = (object, props) => {
       x: undefined,
       y: undefined,
       z: undefined,
-      easing: 'linear',
-      loop: true,
-      duration: 5000
+      easing: 'easeOutSine',
+      loop: true
     }
     const rotationAxis = props.displayRotationAxis ? props.displayRotationAxis : 'y'
     rotateInPlaceAnimation[rotationAxis] = THREE.Math.degToRad(360)
@@ -251,13 +257,15 @@ const moveToDisplay = (object, props) => {
     toDisplayAnimation = Anime.timeline({
       targets: object.position,
       easing: 'easeOutSine',
-      duration: 1000,
-      complete: () => {
-        onDisplayAnimation = Anime(rotateInPlaceAnimation)
-      }
+      duration: 1000
     })
       .add({ x: 0 })
       .add({ y: 0, z: 0 })
+
+    setTimeout(() => {
+      // rotate in place will not always equal 360 depending on the angle the object is brough out from the case at
+      onDisplayAnimation = Anime(rotateInPlaceAnimation)
+    }, 950)
 }
 
 const moveToCase = (object, props) => {
@@ -273,13 +281,13 @@ const moveToCase = (object, props) => {
   })
 }
 
-const moveToPosition = object => {
+const moveToMidway = object => {
   const props = objectProps[object.name]
   const beingDisplayed = object.parent.name === 'Case'
 
   if (beingDisplayed) {
     // Move to midway point
-    midwayGroup.attach(object)
+    midwayGroupOut.attach(object)
 
     const preRotationX = (props.preRotation && props.preRotation.x) ? THREE.Math.degToRad(props.preRotation.x) : 0
     const preRotationY = (props.preRotation && props.preRotation.y) ? THREE.Math.degToRad(props.preRotation.y) : 0
@@ -291,16 +299,16 @@ const moveToPosition = object => {
       x: preRotationX,
       y: preRotationY,
       z: preRotationZ,
-      duration: 700,
+      duration: 500,
       easing: 'easeOutSine'
     })
 
-    Anime({
+    midwayAnimation = Anime({
       targets: object.position,
       x: 0,
       y: 0,
       z: 0,
-      duration: 700,
+      duration: 500,
       easing: 'easeOutSine',
       complete: () => {
         moveToDisplay(object, props)
@@ -309,13 +317,12 @@ const moveToPosition = object => {
   // Remove object from display group and add it back into case group
   } else {
     onDisplayAnimation.pause()
-    // Move back to midway
-    midwayGroup.attach(object)
+    midwayGroupIn.attach(object)
 
     // Align with midway
-    Anime.timeline({
+    midwayAnimation = Anime.timeline({
       targets: object.position,
-      duration: 700,
+      duration: 500,
       easing: 'easeOutSine',
       complete: () => {
         moveToCase(object, props)
@@ -330,7 +337,7 @@ const moveToPosition = object => {
       x: 0,
       y: 0,
       z: 0,
-      duration: 700,
+      duration: 500,
       easing: 'easeOutSine'
     })
   }
@@ -377,7 +384,7 @@ const addArrToGroup = (arr, group) => {
 
 const rotateObject = (deltaX, deltaY) => {
   caseObj.rotation.y += deltaX / 700
-  caseObj.rotation.x += deltaY / 700
+  // caseObj.rotation.x += deltaY / 700
 }
 
 const onMouseMove = e => {
