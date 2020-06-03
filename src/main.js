@@ -67,7 +67,8 @@ let caseObj = null
 
 // Display Group
 const displayGroup = new THREE.Group()
-displayGroup.position.set(2.5, 0 , 0)
+displayGroup.position.set(2.5, 0, 0)
+displayGroup.rotation.y = -3.4
 scene.add(displayGroup)
 
 // Midway Group - Acts as a waypoint for objects coming in and out of the case to make sure they lift out of the case
@@ -309,6 +310,7 @@ const moveToPosition = object => {
     })
   // Remove object from display group and add it back into case group
   } else {
+    caseObj.attach(object)
     onDisplayAnimation.pause()
     // Move back to midway
     midwayGroup.attach(object)
