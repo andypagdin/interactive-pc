@@ -65,9 +65,15 @@ scene.add(vignette)
 const loader = new GLTFLoader()
 let caseObj = null
 
+// Display Group
 const displayGroup = new THREE.Group()
 displayGroup.position.set(2.5, 0 , 0)
 scene.add(displayGroup)
+
+// Midway Group - Acts as a waypoint for objects coming in and out of the case to make sure they lift out of the case
+// before moving to and from the display position
+const midwayGroup = new THREE.Group()
+midwayGroup.position.set(0, 0.5, -2)
 
 // Load Case
 loader.load(Case, gltf => {
@@ -128,6 +134,7 @@ loader.load(Case, gltf => {
   object.add(FrontTopFanGroup)
   object.add(RearFanGroup)
   object.add(FrontBottomFanGroup)
+  object.add(midwayGroup)
 
   const box = new THREE.Box3().setFromObject(object)
   const size = box.getSize(new THREE.Vector3()).length()
@@ -224,41 +231,109 @@ const onClick = event => {
   }
 }
 
+const moveToDisplay = (object, props) => {
+    // Move to display position
+    displayGroup.attach(object)
+
+    // rotate object in display position
+    let rotateInPlaceAnimation = {
+      targets: object.rotation,
+      x: undefined,
+      y: undefined,
+      z: undefined,
+      easing: 'linear',
+      loop: true,
+      duration: 5000
+    }
+    const rotationAxis = props.displayRotationAxis ? props.displayRotationAxis : 'y'
+    rotateInPlaceAnimation[rotationAxis] = THREE.Math.degToRad(360)
+
+    // Move to display position
+    toDisplayAnimation = Anime.timeline({
+      targets: object.position,
+      easing: 'easeOutSine',
+      duration: 1000,
+      complete: () => {
+        onDisplayAnimation = Anime(rotateInPlaceAnimation)
+      }
+    })
+      .add({ x: 0 })
+      .add({ y: 0, z: 0 })
+}
+
+const moveToCase = (object, props) => {
+  caseObj.attach(object)
+
+  toDisplayAnimation = Anime({
+    targets: object.position,
+    x: props.position.x,
+    y: props.position.y,
+    z: props.position.z,
+    easing: 'easeOutSine',
+    duration: 1000
+  })
+}
+
 const moveToPosition = object => {
   const props = objectProps[object.name]
   const beingDisplayed = object.parent.name === 'Case'
 
-  // move the object to the display position
   if (beingDisplayed) {
-    // Remove the object being displayed from the case parent object
-    // add it into the display group, so it is no longer affected by the case rotation
-    for (let i = 0; i < caseObj.children.length; i++) {
-      if (caseObj.children[i].name === object.name) {
-        displayGroup.add(caseObj.children[i])
-        object.position.set(0, 0, 0)
+    // Move to midway point
+    midwayGroup.attach(object)
 
-        // apply any pre rotation
-        if (props.preRotation) object.rotation.set(props.preRotation.x, props.preRotation.y, props.preRotation.z)
+    const preRotationX = (props.preRotation && props.preRotation.x) ? THREE.Math.degToRad(props.preRotation.x) : 0
+    const preRotationY = (props.preRotation && props.preRotation.y) ? THREE.Math.degToRad(props.preRotation.y) : 0
+    const preRotationZ = (props.preRotation && props.preRotation.z) ? THREE.Math.degToRad(props.preRotation.z) : 0
 
-        // rotate object in display position
-        onDisplayAnimation = Anime({
-          targets: object.rotation,
-          x: props.display.rotation.x,
-          y: props.display.rotation.y,
-          z: props.display.rotation.z,
-          easing: 'linear',
-          loop: true,
-          duration: 5000
-        })
-        return
+    // Apply any pre-rotations
+    Anime({
+      targets: object.rotation,
+      x: preRotationX,
+      y: preRotationY,
+      z: preRotationZ,
+      duration: 700,
+      easing: 'easeOutSine'
+    })
+
+    Anime({
+      targets: object.position,
+      x: 0,
+      y: 0,
+      z: 0,
+      duration: 700,
+      easing: 'easeOutSine',
+      complete: () => {
+        moveToDisplay(object, props)
       }
-    }
+    })
   // Remove object from display group and add it back into case group
   } else {
     onDisplayAnimation.pause()
-    object.rotation.set(props.rotation.x, props.rotation.y, props.rotation.z)
-    object.position.set(props.position.x, props.position.y, props.position.z)
-    caseObj.add(object)
+    // Move back to midway
+    midwayGroup.attach(object)
+
+    // Align with midway
+    Anime.timeline({
+      targets: object.position,
+      duration: 700,
+      easing: 'easeOutSine',
+      complete: () => {
+        moveToCase(object, props)
+      }
+    })
+      .add({ z: 0 })
+      .add({ x: 0, y: 0 })
+
+    // Rotate back to original rotation
+    Anime({
+      targets: object.rotation,
+      x: 0,
+      y: 0,
+      z: 0,
+      duration: 700,
+      easing: 'easeOutSine'
+    })
   }
 }
 
