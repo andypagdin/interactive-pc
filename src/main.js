@@ -6,9 +6,11 @@ import { objectProps, interactableObjNames, sideMenuItems } from './object-props
 import { createBackground } from '../lib/three-vignette.js'
 
 const scene = new THREE.Scene()
+const loader = new GLTFLoader()
 const interactableObjects = []
 let INTERSECTED
 let DISPLAY_POSITION
+let caseObj = null
 
 // Elements
 const root = document.getElementById('root')
@@ -36,8 +38,7 @@ renderer.physicallyCorrectLights = true
 root.appendChild(renderer.domElement)
 
 // Camera
-const fov = 30
-const camera = new THREE.PerspectiveCamera(fov, window.innerWidth / window.innerHeight, 1, 1000)
+const camera = new THREE.PerspectiveCamera(30, window.innerWidth / window.innerHeight, 1, 1000)
 scene.add(camera)
 
 // Lights
@@ -61,9 +62,6 @@ const vignette = createBackground({
 })
 vignette.name = 'Vignette'
 scene.add(vignette)
-
-const loader = new GLTFLoader()
-let caseObj = null
 
 // Display Group
 const displayGroup = new THREE.Group()
@@ -159,10 +157,10 @@ loader.load(Case, gltf => {
   // Animate fan blades
   fanBladesAnimation = Anime({
     targets: FanBlades,
-    x: 12.5,
+    x: THREE.Math.degToRad(360),
     easing: 'linear',
     loop: true,
-    duration: 2500,
+    duration: 1250,
   })
   fanBladesAnimation.pause()
 
@@ -310,7 +308,6 @@ const moveToPosition = object => {
     })
   // Remove object from display group and add it back into case group
   } else {
-    caseObj.attach(object)
     onDisplayAnimation.pause()
     // Move back to midway
     midwayGroup.attach(object)
