@@ -238,17 +238,17 @@ const onClick = event => {
 }
 
 const moveToDisplay = (object, props) => {
-    // Move to display position
     displayGroup.attach(object)
 
-    // rotate object in display position
+    // Rotate object in display position
     let rotateInPlaceAnimation = {
       targets: object.rotation,
       x: undefined,
       y: undefined,
       z: undefined,
-      easing: 'easeOutSine',
-      loop: true
+      easing: 'linear',
+      loop: true,
+      duration: 4000
     }
     const rotationAxis = props.displayRotationAxis ? props.displayRotationAxis : 'y'
     rotateInPlaceAnimation[rotationAxis] = THREE.Math.degToRad(360)
@@ -262,8 +262,17 @@ const moveToDisplay = (object, props) => {
       .add({ x: 0 })
       .add({ y: 0, z: 0 })
 
+    // Rotate object to face the camera regardless of case rotation
+    Anime({
+      targets: object.rotation,
+      x: object.rotation.x + caseObj.rotation.x,
+      y: 0,
+      z: 0,
+      easing: 'easeOutSine',
+      duration: 850
+    })
+
     setTimeout(() => {
-      // rotate in place will not always equal 360 depending on the angle the object is brough out from the case at
       onDisplayAnimation = Anime(rotateInPlaceAnimation)
     }, 950)
 }
@@ -271,6 +280,7 @@ const moveToDisplay = (object, props) => {
 const moveToCase = (object, props) => {
   caseObj.attach(object)
 
+  // Move back to default object position
   toDisplayAnimation = Anime({
     targets: object.position,
     x: props.position.x,
@@ -286,7 +296,6 @@ const moveToMidway = object => {
   const beingDisplayed = object.parent.name === 'Case'
 
   if (beingDisplayed) {
-    // Move to midway point
     midwayGroupOut.attach(object)
 
     const preRotationX = (props.preRotation && props.preRotation.x) ? THREE.Math.degToRad(props.preRotation.x) : 0
@@ -303,6 +312,7 @@ const moveToMidway = object => {
       easing: 'easeOutSine'
     })
 
+    // Move to midway group position
     midwayAnimation = Anime({
       targets: object.position,
       x: 0,
@@ -319,7 +329,7 @@ const moveToMidway = object => {
     onDisplayAnimation.pause()
     midwayGroupIn.attach(object)
 
-    // Align with midway
+    // Move to midway group position
     midwayAnimation = Anime.timeline({
       targets: object.position,
       duration: 500,
@@ -384,7 +394,7 @@ const addArrToGroup = (arr, group) => {
 
 const rotateObject = (deltaX, deltaY) => {
   caseObj.rotation.y += deltaX / 700
-  // caseObj.rotation.x += deltaY / 700
+  caseObj.rotation.x += deltaY / 700
 }
 
 const onMouseMove = e => {
