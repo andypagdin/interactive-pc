@@ -2,7 +2,7 @@ import * as THREE from 'three'
 import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader'
 import Case from '../assets/models/case-v2.glb'
 import Anime from 'animejs'
-import { objectProps, interactableObjNames, sideMenuItems } from './object-props'
+import { objectProps, interactableObjNames } from './object-props'
 import { createBackground } from '../lib/three-vignette.js'
 import './styles.css'
 
@@ -165,7 +165,7 @@ loader.load(Case, gltf => {
     x: THREE.Math.degToRad(360),
     easing: 'linear',
     loop: true,
-    duration: 1250,
+    duration: 1500,
   })
   fanBladesAnimation.pause()
 
@@ -204,13 +204,16 @@ const render = () => {
 }
 
 const onClick = event => {
-  // Ignore side menu or toggle clicks
-  if (sideMenuItems.indexOf(event.target.id) !== -1) return
-
   // Ignore clicks if there is an animation in progress
   if (toDisplayAnimation && !toDisplayAnimation.completed ||
       midwayAnimation && !midwayAnimation.completed) {
     return
+  }
+
+  // Handle menu item clicks
+  if (interactableObjNames.indexOf(event.target.id) !== -1) {
+    const menuItemObject = scene.getObjectByName(event.target.id)
+    INTERSECTED = menuItemObject.children[0]
   }
 
   if (INTERSECTED) {
@@ -263,10 +266,14 @@ const moveToDisplay = (object, props) => {
       .add({ x: 0 })
       .add({ y: 0, z: 0 })
 
+    const rotationX = props.preRotation
+      ? object.rotation.x + caseObj.rotation.x
+      : 0
+
     // Rotate object to face the camera regardless of case rotation
     Anime({
       targets: object.rotation,
-      x: object.rotation.x + caseObj.rotation.x,
+      x: rotationX,
       y: 0,
       z: 0,
       easing: 'easeOutSine',

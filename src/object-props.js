@@ -1,6 +1,18 @@
-export const sideMenuItems = ['controls', 'toggle-fans']
-
-export const interactableObjNames = ['RearFanBlades', 'RearFanCase', 'FrontTopFanBlades', 'FrontTopFanCase', 'FrontBottomFanBlades', 'FrontBottomFanCase', 'GraphicsCard', 'Ram', 'CpuChip', 'PowerSupply']
+export const interactableObjNames = [
+  'RearFan',
+  'RearFanBlades',
+  'RearFanCase',
+  'FrontTopFan',
+  'FrontTopFanBlades',
+  'FrontTopFanCase',
+  'FrontBottomFan',
+  'FrontBottomFanBlades',
+  'FrontBottomFanCase',
+  'GraphicsCard',
+  'Ram',
+  'CpuChip',
+  'PowerSupply'
+]
 
 export const objectProps = {
   Default: {
