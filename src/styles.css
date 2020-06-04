@@ -1,0 +1,121 @@
+body {
+  margin: 0;
+  overflow: hidden;
+  letter-spacing: 1.5px;
+  font-family: 'Raleway', sans-serif;
+  font-weight: 200;
+}
+
+canvas {
+  display: block;
+}
+
+#controls {
+  width: auto;
+  height: auto;
+  padding: 10px;
+  margin: 10px;
+  background-color: #000;
+  position: absolute;
+  top: 0;
+  right: 0;
+  color: #fff;
+  border-radius: 10px;
+}
+
+#object-container {
+  position: absolute;
+  border-left: 4px solid #e74c3c;
+  color: black;
+  top: 20%;
+  left: 60%;
+  padding: 10px;
+  margin-right: 50px;
+}
+
+#object-container p {
+  margin: 10px 0 0 0;
+}
+
+#title {
+  font-size: 35px;
+}
+
+#description {
+  font-size: 22px;
+}
+
+#object-container div {
+  padding: 5px 10px;
+}
+
+/* Checkbox toggle */
+input[type=checkbox]{
+  height: 0;
+  width: 0;
+  display: none;
+}
+
+label {
+  cursor: pointer;
+  width: 90px;
+  height: 45px;
+  background: grey;
+  display: block;
+  position: relative;
+  border-radius: 25px;
+}
+
+label:after {
+  content: '';
+  position: absolute;
+  top: 5px;
+  left: 5px;
+  width: 35px;
+  height: 35px;
+  background: #fff;
+  border-radius: 20px;
+  transition: 0.2s;
+}
+
+input:checked + label {
+  background: #bada55;
+}
+
+input:checked + label:after {
+  left: calc(100% - 5px);
+  transform: translateX(-100%);
+}
+
+.control-item div, .control-item label {
+  display: inline-block;
+  vertical-align: middle;
+}
+
+.control-header {
+  font-size: 20px;
+  padding-right: 10px;
+}
+
+/* Logos */
+.github-logo {
+  background-color: #fff;
+  position: absolute;
+  bottom: 0;
+  right: 0;
+  display: block;
+  width: 40px;
+  height: 40px;
+  background: url(../assets/github.svg);
+  background-color: #fff;
+  background-repeat: no-repeat;
+  background-origin: content-box;
+  opacity: .7;
+  margin: 10px;
+  padding: 5px;
+  border-radius: 10px;
+}
+
+.github-logo:hover {
+  opacity: 1;
+}

@@ -4,6 +4,7 @@ import Case from '../assets/models/case-v2.glb'
 import Anime from 'animejs'
 import { objectProps, interactableObjNames, sideMenuItems } from './object-props'
 import { createBackground } from '../lib/three-vignette.js'
+import './styles.css'
 
 const scene = new THREE.Scene()
 const loader = new GLTFLoader()
@@ -15,7 +16,7 @@ let caseObj = null
 // Elements
 const root = document.getElementById('root')
 const body = document.getElementsByTagName('body')[0]
-const toggleFanBtn = document.getElementById('toggle-fans')
+const toggleFan = document.getElementById('toggle-fan')
 const title = document.getElementById('title')
 const description = document.getElementById('description')
 
@@ -429,7 +430,7 @@ const onMouseUp = e => {
 }
 
 // Event listeners
-toggleFanBtn.addEventListener('click', toggleFans, false)
+toggleFan.addEventListener('click', toggleFans, false)
 window.addEventListener('click', onClick, false)
 window.addEventListener('resize', onWindowResize, false)
 window.addEventListener('mousemove', onMouseMove, false)

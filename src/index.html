@@ -4,66 +4,20 @@
     <meta charset="utf-8">
     <title>WebGL</title>
     <link href="https://fonts.googleapis.com/css2?family=Raleway&display=swap" rel="stylesheet">
-    <style>
-      body {
-        margin: 0;
-        overflow: hidden;
-      }
-
-      canvas {
-        display: block;
-      }
-
-      #controls {
-        width: 100px;
-        height: 30px;
-        padding: 10px;
-        background-color: #000;
-        position: absolute;
-        top: 0;
-        right: 0;
-        color: #fff;
-      }
-
-      #object-container {
-        position: absolute;
-        border-left: 4px solid #e74c3c;
-        color: black;
-        top: 20%;
-        left: 60%;
-        letter-spacing: 1.5px;
-        font-family: 'Raleway', sans-serif;
-        font-weight: 200;
-        padding: 10px;
-        margin-right: 50px;
-      }
-
-      #object-container p {
-        margin: 10px 0 0 0;
-      }
-
-      #title {
-        font-size: 35px;
-      }
-
-      #description {
-        font-size: 22px;
-      }
-
-      #object-container div {
-        padding: 5px 10px;
-      }
-    </style>
   </header>
   <body>
     <div id="root">
       <div id="controls">
-        <button id="toggle-fans">Fans</button>
+        <div class="control-item">
+          <div class="control-header">Fans</div>
+          <input type="checkbox" id="toggle-fan" /><label for="toggle-fan"></label>
+        </div>
       </div>
       <div id="object-container">
         <div id="title">Welcome</div>
         <div id="description">Click on a part of the PC to get started</div>
       </div>
+      <a href="/" class="github-logo"></a>
     </div>
   </body>
 </html>

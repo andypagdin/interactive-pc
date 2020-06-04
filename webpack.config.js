@@ -16,12 +16,22 @@ module.exports = {
           [
             {
               loader: 'file-loader',
-              options:
-              {
-                outputPath: 'assets/models/'
-              }
+              options: { outputPath: 'assets/models/' }
             }
           ]
+      },
+      {
+        test: /\.(jpg|jpeg|png|svg)$/,
+        use: [
+          {
+            loader: 'file-loader',
+            options: { outputPath: 'assets/' }
+          }
+        ],
+      },
+      {
+        test: /\.css$/i,
+        use: ['style-loader', 'css-loader'],
       },
       {
         test: /\.(glsl|vs|fs|vert|frag)$/,
