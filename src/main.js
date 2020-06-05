@@ -33,7 +33,6 @@ let midwayAnimation
 
 // Renderer
 const renderer = new THREE.WebGLRenderer({ antialias: true })
-renderer.setClearColor(0xcccccc)
 renderer.setPixelRatio(window.devicePixelRatio)
 renderer.setSize(window.innerWidth, window.innerHeight)
 renderer.outputEncoding = THREE.sRGBEncoding

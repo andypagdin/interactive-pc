@@ -15,13 +15,14 @@ canvas {
   height: auto;
   padding: 10px;
   margin: 10px;
-  background-color: #000;
+  background-color: #1f1f1f;
   position: absolute;
   top: 0;
   left: 0;
   color: #fff;
-  border-radius: 10px;
+  border-radius: 5px;
   font-size: 15px;
+  letter-spacing: 0.5px;
 }
 
 #object-container {
@@ -59,9 +60,9 @@ input[type=checkbox]{
 
 label {
   cursor: pointer;
-  width: 85px;
-  height: 40px;
-  background: grey;
+  width: 80px;
+  height: 35px;
+  background: #c1c1c1;
   display: block;
   position: relative;
   border-radius: 25px;
@@ -72,8 +73,8 @@ label:after {
   position: absolute;
   top: 5px;
   left: 5px;
-  width: 30px;
-  height: 30px;
+  width: 25px;
+  height: 25px;
   background: #fff;
   border-radius: 20px;
   transition: 0.2s;
@@ -99,13 +100,12 @@ input:checked + label:after {
 
 /* Logos */
 .github-logo {
-  background-color: #fff;
   position: absolute;
   bottom: 0;
   right: 0;
   display: block;
-  width: 40px;
-  height: 40px;
+  width: 30px;
+  height: 30px;
   background: url(../assets/github.svg);
   background-color: #fff;
   background-repeat: no-repeat;
@@ -126,10 +126,11 @@ input:checked + label:after {
 }
 
 #interactable-objects-menu div {
-  background-color: grey;
-  margin: 15px 0;
-  padding: 15px;
-  border-radius: 10px;
+  color: #000;
+  background-color: #c1c1c1;
+  margin: 10px 0;
+  padding: 10px;
+  border-radius: 5px;
 }
 
 #interactable-objects-menu div:hover {
@@ -138,7 +139,7 @@ input:checked + label:after {
   color: grey;
 }
 
-#controls h4 {
+#controls #header {
   margin: 20px 0;
   text-align: center;
 }
