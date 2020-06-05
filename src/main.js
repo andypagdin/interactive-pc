@@ -19,6 +19,7 @@ const body = document.getElementsByTagName('body')[0]
 const toggleFan = document.getElementById('toggle-fan')
 const title = document.getElementById('title')
 const description = document.getElementById('description')
+const interactableObjectsMenu = document.getElementById('interactable-objects-menu')
 
 // Raycaster
 const raycaster = new THREE.Raycaster()
@@ -436,12 +437,28 @@ const onMouseUp = e => {
   mouseDown = false
 }
 
+const onInteractableObjectsMenuHover = e => {
+  if (event.target.id !== 'interactable-objects-menu') {
+    const object = scene.getObjectByName(event.target.id)
+    let hex = 0
+
+    if (event.type === 'mouseover') hex = 0xc1c1c1
+
+    object.children.forEach(element => {
+      element.material.emissiveIntensity = 0.5
+      element.material.emissive.setHex(hex)
+    })
+  }
+}
+
 // Event listeners
-toggleFan.addEventListener('click', toggleFans, false)
 window.addEventListener('click', onClick, false)
 window.addEventListener('resize', onWindowResize, false)
 window.addEventListener('mousemove', onMouseMove, false)
 window.addEventListener('mousedown', onMouseDown, false)
 window.addEventListener('mouseup', onMouseUp, false)
+toggleFan.addEventListener('click', toggleFans, false)
+interactableObjectsMenu.addEventListener('mouseover', onInteractableObjectsMenuHover, false)
+interactableObjectsMenu.addEventListener('mouseout', onInteractableObjectsMenuHover, false)
 
 animate()

@@ -140,4 +140,5 @@ input:checked + label:after {
 
 #controls h4 {
   margin: 20px 0;
+  text-align: center;
 }
