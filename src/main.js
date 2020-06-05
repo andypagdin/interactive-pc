@@ -102,9 +102,8 @@ loader.load(Case, gltf => {
   const FanBlades = []
 
   // Loop through all children and add interactable objects
-  for (let i = 0; i < object.children.length; i++) {
-    if (interactableObjNames.indexOf(object.children[i].name) !== -1) {
-      let child = object.children[i]
+  object.children.forEach(child => {
+    if (interactableObjNames.indexOf(child.name) !== -1) {
       if (child.name.indexOf('FrontTop') !== -1) {
         if (child.name.indexOf('Blade') !== -1) {
           FanBlades.push(child.rotation)
@@ -127,7 +126,7 @@ loader.load(Case, gltf => {
         interactableObjects.push(child)
       }
     }
-  }
+  })
 
   addArrToGroup(FrontTopFanArr, FrontTopFanGroup)
   addArrToGroup(FrontBottomFanArr, FrontBottomFanGroup)
@@ -183,7 +182,6 @@ const animate = () => {
 
 const render = () => {
   raycaster.setFromCamera(mouse, camera)
-
   const intersects = raycaster.intersectObjects(interactableObjects, true)
 
   if (intersects.length > 0) {
@@ -374,10 +372,10 @@ const setHex = (object, colour) => {
   body.style = (colour === 0) ? 'cursor: default' : 'cursor: pointer'
   if (object.parent.name !== 'Case') {
     object = object.parent
-    for (let i = 0; i < object.children.length; i++) {
-      object.children[i].material.emissiveIntensity = 0.5
-      object.children[i].material.emissive.setHex(colour)
-    }
+    object.children.forEach(child => {
+      child.material.emissiveIntensity = 0.5
+      child.material.emissive.setHex(colour)
+    })
   } else {
     object.material.emissiveIntensity = 0.5
     object.material.emissive.setHex(colour)
@@ -396,9 +394,9 @@ const setPosition = (object, props) => {
 }
 
 const addArrToGroup = (arr, group) => {
-  for (let i = 0; i < arr.length; i++) {
-    group.add(arr[i])
-  }
+  arr.forEach(element => {
+    group.add(element)
+  })
 }
 
 const rotateObject = (deltaX, deltaY) => {
@@ -438,15 +436,15 @@ const onMouseUp = e => {
 }
 
 const onInteractableObjectsMenuHover = e => {
-  if (event.target.id !== 'interactable-objects-menu') {
-    const object = scene.getObjectByName(event.target.id)
+  if (e.target.id !== 'interactable-objects-menu') {
+    const object = scene.getObjectByName(e.target.id)
     let hex = 0
 
-    if (event.type === 'mouseover') hex = 0xc1c1c1
+    if (e.type === 'mouseover') hex = 0xc1c1c1
 
-    object.children.forEach(element => {
-      element.material.emissiveIntensity = 0.5
-      element.material.emissive.setHex(hex)
+    object.children.forEach(child => {
+      child.material.emissiveIntensity = 0.5
+      child.material.emissive.setHex(hex)
     })
   }
 }
