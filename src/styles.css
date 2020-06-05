@@ -11,8 +11,7 @@ canvas {
 }
 
 #controls {
-  width: auto;
-  height: auto;
+  width: 8%;
   padding: 10px;
   margin: 10px;
   background-color: #1f1f1f;
