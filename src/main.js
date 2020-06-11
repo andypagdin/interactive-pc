@@ -67,7 +67,7 @@ scene.add(vignette)
 
 // Display Group
 const displayGroup = new THREE.Group()
-displayGroup.position.set(2.5, 0, 0)
+displayGroup.position.set(2.5, -0.4, 0)
 displayGroup.rotation.y = -3.4
 scene.add(displayGroup)
 

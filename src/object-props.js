@@ -22,21 +22,21 @@ export const objectProps = {
   RearFan: {
     title: 'Exhaust Fan',
     description: 'Fans are used to move air through the computer case. The components inside the case cannot dissipate heat efficiently if the surrounding air is too hot. <p> Commonly placed on the rear or top of the case, exhaust fans will expel the warm air.',
-    position: { x: 1.93, y: 1.49, z: -0.46 }
+    position: { x: 1.98, y: 1.49, z: -0.46 }
   },
   FrontTopFan: {
     title: 'Front Top Fan',
-    description: 'front top fan',
+    description: 'Fans are used to move air through the computer case. The components inside the case cannot dissipate heat efficiently if the surrounding air is too hot. <p> Commonly placed on the front or bottom of the case, intake fans will bring cool air into the case.',
     position: { x: -2.16, y: 1.22, z: -0.10 }
   },
   FrontBottomFan: {
     title: 'Front Bottom Fan',
-    description: 'front bottom fan',
+    description: 'Fans are used to move air through the computer case. The components inside the case cannot dissipate heat efficiently if the surrounding air is too hot. <p> Commonly placed on the front or bottom of the case, intake fans will bring cool air into the case.',
     position: { x: -2.16, y: 0, z: -0.10 },
   },
   GraphicsCard: {
     title: 'Graphics Card',
-    description: 'graphics card',
+    description: 'The graphics card is what creates the visuals you see on the screen. How powerful those GPU’s are will vary on the model you select. <p> The GPU works as a translator, it takes data coming from the CPU and transforms it into imagery. More complex visuals, like you find in high-definition games require more complex and quicker GPUs to accommodate the stream of data.',
     position: { x: 0.78, y: 0.44, z: 0.19 },
     preRotation: { x: 90 },
     displayRotationAxis: 'z'
@@ -56,6 +56,6 @@ export const objectProps = {
   PowerSupply: {
     title: 'Power Supply',
     description: 'A power supply unit converts mains AC to low-voltage regulated DC power for the internal components of a computer. Modern personal computers universally use switched-mode power supplies. <p> Some power supplies have a manual switch for selecting input voltage, while others automatically adapt to the mains voltage.',
-    position: { x: 1.31, y: -1.19, z: -0.12 }
+    position: { x: 1.36, y: -1.19, z: -0.12 }
   }
 }

@@ -142,3 +142,13 @@ input:checked + label:after {
   margin: 20px 0;
   text-align: center;
 }
+
+#version {
+  position: absolute;
+  bottom: 0;
+  right: 0;
+  padding: 10px;
+  margin-right: 50px;
+  font-size: 15px;
+  font-weight: bold;
+}
