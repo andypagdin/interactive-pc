@@ -100,7 +100,7 @@ loader.load(Case, gltf => {
 
   const FanBlades = []
 
-  // Loop through all children and add interactable objects
+  // TODO: Clean this up
   object.children.forEach(child => {
     if (interactableObjNames.indexOf(child.name) !== -1) {
       if (child.name.indexOf('FrontTop') !== -1) {
@@ -222,6 +222,7 @@ const onClick = event => {
 
     // If the object is in its default position, move it into display position
     // otherwise move it back to its default position
+    // TODO: Optimise this to remove the need for expensive Number() calls on every click
     if (Number(object.position.x.toFixed(2)) === objectProps[object.name].position.x &&
         Number(object.position.y.toFixed(2)) === objectProps[object.name].position.y &&
         Number(object.position.z.toFixed(2)) === objectProps[object.name].position.z) {
@@ -369,16 +370,10 @@ const resetContent = () => {
 
 const setHex = (object, colour) => {
   body.style = (colour === 0) ? 'cursor: default' : 'cursor: pointer'
-  if (object.parent.name !== 'Case') {
-    object = object.parent
-    object.children.forEach(child => {
-      child.material.emissiveIntensity = 0.5
-      child.material.emissive.setHex(colour)
-    })
-  } else {
-    object.material.emissiveIntensity = 0.5
-    object.material.emissive.setHex(colour)
-  }
+  object.parent.children.forEach(child => {
+    child.material.emissiveIntensity = 0.5
+    child.material.emissive.setHex(colour)
+  })
 }
 
 const onWindowResize = () => {
